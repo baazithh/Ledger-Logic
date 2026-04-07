@@ -1,0 +1,9 @@
+metrics:
+  - name: installment_value
+    description: "The 1/4th split of the total order value assigned to a customer."
+    calculation: "total_amount / 4"
+    owner: "Analytics Engineering Team"
+
+  - name: collection_efficiency
+    description: "Ratio of successful payments vs total attempted transactions."
+    logic: "Count of status='SUCCESS' / Total Count"
