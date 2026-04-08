@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
+import faviconPng from "./favicon.png";
 
 export default function Home() {
   const router = useRouter();
@@ -42,17 +44,24 @@ export default function Home() {
     <div className="flex flex-col min-h-screen bg-zinc-50 dark:bg-zinc-950 font-sans selection:bg-indigo-100">
       {/* Navigation */}
       <nav className="flex items-center justify-between px-8 py-6 border-b border-zinc-200 dark:border-zinc-800 bg-white/50 dark:bg-black/50 backdrop-blur-md sticky top-0 z-50">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
-            <span className="text-white font-bold text-xs">LL</span>
+        <div className="flex items-center gap-3 cursor-pointer" onClick={() => protectedNavigate("/inventory")}>
+          <div className="w-8 h-8 flex items-center justify-center">
+            <Image
+              src={faviconPng}
+              alt="Ledger Inventory"
+              width={32}
+              height={32}
+              className="w-8 h-8 rounded-lg"
+              priority
+            />
           </div>
-          <span className="text-xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
-            Ledger<span className="text-indigo-600">Logic</span>
+          <span className="text-xl md:text-2xl font-black tracking-tighter uppercase text-zinc-900 dark:text-zinc-50">
+            Ledger<span className="text-emerald-500">.</span>Inventory
           </span>
         </div>
 
         {/* Nav Buttons with Protection */}
-        <div className="hidden md:flex gap-8 text-sm font-medium text-zinc-600 dark:text-zinc-400">
+        <div className="hidden md:flex items-center gap-8 text-sm font-medium text-zinc-600 dark:text-zinc-400">
           <button 
             onClick={() => protectedNavigate("/inventory")} 
             className="hover:text-indigo-600 transition-colors"
