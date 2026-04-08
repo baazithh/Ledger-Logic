@@ -1,20 +1,20 @@
 import path from 'path';
-// Ensure actions.ts is at ui/app/actions.ts
+// Adjusted import path to match standard Next.js app structure
 import { addProduct, updateStock } from '../action';
-import { Plus, Minus, Package, Store } from 'lucide-react';
+import { Plus, Minus, Package, Store, ChevronDown } from 'lucide-react';
 
-// Force Next.js to fetch from the DB on every request (No stale cache)
 export const dynamic = 'force-dynamic';
 
 export default async function InventoryPage() {
-  // We use 'require' inside the function to prevent the bundler 
-  // from trying to include better-sqlite3 in the client-side code.
   const Database = require('better-sqlite3');
   
   const dbPath = path.resolve(process.cwd(), '../data/ledger_raw.db');
   const db = new Database(dbPath);
 
-  // Fetch products directly from your structured SQLite table
+  // 1. Fetch valid merchants for the dropdown
+  const merchants = db.prepare('SELECT merchant_name FROM dim_merchants ORDER BY merchant_name ASC').all() as any[];
+
+  // 2. Fetch products for the table
   const products = db.prepare('SELECT * FROM products ORDER BY updated_at DESC').all() as any[];
 
   return (
@@ -37,14 +37,32 @@ export default async function InventoryPage() {
               <label className="text-xs uppercase tracking-widest text-gray-500 font-bold">Product Name</label>
               <input name="product_name" required className="w-full bg-white/5 border border-white/10 rounded-xl p-3 outline-none focus:border-blue-500 focus:bg-white/10 transition-all text-sm" placeholder="e.g. iPhone 15" />
             </div>
+
+            {/* Merchant Selection Dropdown */}
             <div className="space-y-2">
               <label className="text-xs uppercase tracking-widest text-gray-500 font-bold">Merchant</label>
-              <input name="merchant_name" required className="w-full bg-white/5 border border-white/10 rounded-xl p-3 outline-none focus:border-blue-500 focus:bg-white/10 transition-all text-sm" placeholder="e.g. Apple Store" />
+              <div className="relative">
+                <select 
+                  name="merchant_name" 
+                  required 
+                  className="w-full bg-white/5 border border-white/10 rounded-xl p-3 outline-none focus:border-blue-500 focus:bg-white/10 transition-all text-sm appearance-none cursor-pointer"
+                >
+                  <option value="" disabled selected className="bg-black">Select Merchant</option>
+                  {merchants.map((m) => (
+                    <option key={m.merchant_name} value={m.merchant_name} className="bg-black text-white">
+                      {m.merchant_name}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown className="absolute right-3 top-3 text-gray-500 pointer-events-none" size={16} />
+              </div>
             </div>
+
             <div className="space-y-2">
               <label className="text-xs uppercase tracking-widest text-gray-500 font-bold">Price ($)</label>
               <input name="price" type="number" step="0.01" required className="w-full bg-white/5 border border-white/10 rounded-xl p-3 outline-none focus:border-blue-500 focus:bg-white/10 transition-all text-sm font-mono" placeholder="999.99" />
             </div>
+            
             <div className="flex items-end">
               <button type="submit" className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl shadow-lg shadow-blue-900/20 transition-all active:scale-95">
                 Add to Ledger
