@@ -1,6 +1,6 @@
 import path from 'path';
 // Ensure actions.ts is at ui/app/actions.ts
-import { addProduct, updateStock } from '../../actions';
+import { addProduct, updateStock } from '../action';
 import { Plus, Minus, Package, Store } from 'lucide-react';
 
 // Force Next.js to fetch from the DB on every request (No stale cache)
