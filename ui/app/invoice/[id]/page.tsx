@@ -1,5 +1,6 @@
+// ui/app/invoice/[id]/page.tsx
 import path from 'path';
-import { ChevronLeft, Hash, Calendar, ShieldCheck, Globe } from 'lucide-react';
+import { ChevronLeft, ShieldCheck, Globe } from 'lucide-react';
 import Link from 'next/link';
 import PrintButton from './PrintButton';
 
@@ -32,41 +33,39 @@ export default async function InvoicePage({ params }: { params: Promise<{ id: st
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white p-8 md:p-16 font-sans print:bg-white print:text-black">
+    <div className="min-h-screen bg-[#0a0a0a] text-white p-8 md:p-16 font-sans print:bg-white print:text-black print:p-0">
       <div className="max-w-4xl mx-auto">
         
-        {/* Header Navigation */}
+        {/* Actions - Hidden on Print */}
         <div className="flex justify-between items-center mb-16 print:hidden">
-          <Link href="/sell" className="flex items-center gap-2 text-gray-500 hover:text-white transition-all text-[10px] font-black uppercase tracking-[0.3em]">
-            <ChevronLeft size={14} /> Back to Terminal
+          <Link href="/transactions" className="flex items-center gap-2 text-gray-500 hover:text-white transition-all text-[10px] font-black uppercase tracking-[0.3em]">
+            <ChevronLeft size={14} /> Back to History
           </Link>
           <PrintButton />
         </div>
 
-        {/* CV Style Layout Starts Here */}
-        <div className="border border-white/10 rounded-[2rem] overflow-hidden bg-white/[0.02] backdrop-blur-3xl print:border-black print:rounded-none">
+        {/* --- PAGE 1: SUMMARY --- */}
+        <div className="border border-white/10 rounded-[2rem] overflow-hidden bg-white/[0.02] print:border-black print:rounded-none print:bg-transparent">
           
-          {/* Top Banner: Formal Identifiers */}
           <div className="grid grid-cols-1 md:grid-cols-3 border-b border-white/10 print:border-black">
-            <div className="p-10 border-r border-white/10 print:border-black bg-white/[0.03]">
-              <h1 className="text-3xl font-black tracking-tighter mb-1 uppercase">Ledger<span className="text-emerald-500">.</span></h1>
-              <p className="text-[9px] font-bold text-gray-500 uppercase tracking-[0.2em]">Transaction Certificate</p>
+            <div className="p-10 border-r border-white/10 print:border-black bg-white/[0.03] print:bg-transparent">
+              <h1 className="text-3xl font-black tracking-tighter mb-1 uppercase italic">Ledger<span className="text-emerald-500">.</span></h1>
+              <p className="text-[9px] font-bold text-gray-500 uppercase tracking-[0.2em]">Certificate of Purchase</p>
             </div>
             <div className="p-10 col-span-2 flex flex-col justify-center">
               <div className="flex justify-between items-center">
                 <div>
                   <p className="text-[10px] text-gray-500 font-black uppercase tracking-widest mb-1">Contract Hash</p>
-                  <p className="font-mono text-sm uppercase">{sale.sale_id}-2026-X9</p>
+                  <p className="font-mono text-sm uppercase">{sale.sale_id}-BASITH-2026-X9</p>
                 </div>
                 <div className="text-right">
                   <p className="text-[10px] text-gray-500 font-black uppercase tracking-widest mb-1">Generated On</p>
-                  <p className="text-sm">{new Date().toLocaleDateString()}</p>
+                  <p className="text-sm font-bold">{new Date().toLocaleDateString('en-GB')}</p>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Section 1: Entity Details (The "CV Header" equivalent) */}
           <div className="grid grid-cols-1 md:grid-cols-2 p-10 gap-10 border-b border-white/10 print:border-black">
             <div>
               <h2 className="text-[10px] font-black uppercase tracking-[0.4em] text-emerald-500 mb-6 flex items-center gap-2">
@@ -84,8 +83,7 @@ export default async function InvoicePage({ params }: { params: Promise<{ id: st
             </div>
           </div>
 
-          {/* Section 2: Asset Specification */}
-          <div className="p-10 border-b border-white/10 print:border-black bg-white/[0.01]">
+          <div className="p-10 bg-white/[0.01] print:bg-transparent">
             <h2 className="text-[10px] font-black uppercase tracking-[0.4em] text-gray-500 mb-8">Purchase Metadata</h2>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
               <div>
@@ -106,8 +104,11 @@ export default async function InvoicePage({ params }: { params: Promise<{ id: st
               </div>
             </div>
           </div>
+        </div>
 
-          {/* Section 3: The Installment Ledger (CV Table style) */}
+        {/* --- PAGE 2: INSTALLMENT ROADMAP --- */}
+        {/* The 'print:break-before-page' class forces this section to start on Page 2 in the PDF */}
+        <div className="mt-12 border border-white/10 rounded-[2rem] overflow-hidden bg-white/[0.02] print:border-black print:rounded-none print:break-before-page print:mt-0 print:bg-transparent">
           <div className="p-10">
             <h2 className="text-[10px] font-black uppercase tracking-[0.4em] text-gray-500 mb-8">Installment Roadmap (BNPL)</h2>
             <div className="w-full border border-white/5 rounded-2xl overflow-hidden print:border-black">
@@ -127,7 +128,7 @@ export default async function InvoicePage({ params }: { params: Promise<{ id: st
                       <td className="p-4 font-mono">{new Date(item.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</td>
                       <td className="p-4 text-right font-black font-mono text-emerald-400 print:text-black">${item.amount.toFixed(2)}</td>
                       <td className="p-4 text-center">
-                        <span className="text-[9px] uppercase tracking-widest px-3 py-1 border border-white/10 rounded-full opacity-40">Unpaid</span>
+                        <span className="text-[9px] uppercase tracking-widest px-3 py-1 border border-white/10 rounded-full opacity-40 print:border-black print:text-black">Unpaid</span>
                       </td>
                     </tr>
                   ))}
@@ -136,10 +137,9 @@ export default async function InvoicePage({ params }: { params: Promise<{ id: st
             </div>
           </div>
 
-          {/* Footer Footer */}
-          <div className="p-10 bg-white/[0.03] border-t border-white/10 print:border-black text-center">
-            <p className="text-[9px] text-gray-600 uppercase tracking-[0.3em] font-bold">
-              Verification Engine: LEDGER INVERNTORY MANAGER | 2026
+          <div className="p-10 bg-white/[0.03] border-t border-white/10 print:border-black text-center print:bg-transparent">
+            <p className="text-[9px] text-gray-600 uppercase tracking-[0.3em] font-bold print:text-black">
+              Verification Engine: Ledger Inventory Manager| 2026
             </p>
           </div>
         </div>
