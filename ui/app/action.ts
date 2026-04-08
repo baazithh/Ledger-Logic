@@ -83,18 +83,17 @@ export async function processSale(formData: FormData) {
   const installments = parseInt(formData.get('installments') as string);
   const startDateStr = formData.get('start_date') as string;
 
-  let newSaleId: number | bigint=0;
+  let newSaleId: number | bigint = 0;
 
   try {
-    // 1. Fetch product to verify stock and price
     const product = db.prepare('SELECT * FROM products WHERE product_id = ?').get(productId);
     
     if (!product || product.quantity <= 0) {
       db.close();
-      return { success: false, error: "Item is out of stock" };
+      console.error("Stock check failed.");
+      return; // Returns Promise<void> - Fixes the UI error
     }
 
-    // 2. BNPL Logic Calculations
     const totalAmount = product.price;
     const remainingBalance = totalAmount - downPayment;
     const monthlyAmount = remainingBalance / installments;
@@ -103,7 +102,6 @@ export async function processSale(formData: FormData) {
     const end = new Date(new Date(startDateStr).setMonth(start.getMonth() + installments));
     const endDateStr = end.toISOString().split('T')[0];
 
-    // 3. Atomic Transaction
     const runSaleTransaction = db.transaction(() => {
       db.prepare('UPDATE products SET quantity = quantity - 1 WHERE product_id = ?').run(productId);
       
@@ -113,17 +111,10 @@ export async function processSale(formData: FormData) {
           installment_count, monthly_installment, start_date, end_date
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
       `).run(
-        productId, 
-        customerName, 
-        totalAmount, 
-        downPayment, 
-        installments, 
-        monthlyAmount, 
-        startDateStr, 
-        endDateStr
+        productId, customerName, totalAmount, downPayment, 
+        installments, monthlyAmount, startDateStr, endDateStr
       );
 
-      // Capture the ID of the sale we just created
       newSaleId = info.lastInsertRowid;
     });
 
@@ -132,12 +123,34 @@ export async function processSale(formData: FormData) {
     
     revalidatePath('/inventory');
     revalidatePath('/sell');
-    
+    revalidatePath('/transactions'); // Added this to refresh your history page
+
   } catch (error) {
+    if (db) db.close();
     console.error("Sale Processing Error:", error);
-    return { success: false, error: "Transaction failed" };
+    return; // Returns Promise<void> - Fixes the UI error
   }
 
-  // Redirect the user to their fresh invoice page
-  redirect(`/invoice/${newSaleId}`);
+  // Redirect happens outside the try/catch
+  if (newSaleId !== 0) {
+    redirect(`/invoice/${newSaleId}`);
+  }
+}
+export async function updateProductPrice(formData: FormData) {
+  const Database = require('better-sqlite3');
+  const db = new Database(dbPath);
+
+  const productId = parseInt(formData.get('product_id') as string);
+  const newPrice = parseFloat(formData.get('price') as string);
+
+  try {
+    db.prepare('UPDATE products SET price = ? WHERE product_id = ?')
+      .run(newPrice, productId);
+    
+    db.close();
+    revalidatePath('/inventory');
+  } catch (error) {
+    console.error("Price Update Error:", error);
+    if (db) db.close();
+  }
 }
