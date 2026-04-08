@@ -1,6 +1,6 @@
 import path from 'path';
-import { addProduct, updateStock, updateProductPrice } from '../action';
-import { Plus, Minus, Package, Store, Check, DollarSign } from 'lucide-react';
+import { addProduct, updateStock, updateProductPrice, deleteProduct } from '../action';
+import { Plus, Minus, Package, Store, Check, DollarSign, Trash2 } from 'lucide-react';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import Database from 'better-sqlite3';
@@ -81,6 +81,7 @@ export default async function InventoryPage() {
                 <th className="p-8">Merchant Partner</th>
                 <th className="p-8">Unit Valuation</th>
                 <th className="p-8 text-center">In-Stock</th>
+                <th className="p-8 text-center">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
@@ -119,7 +120,12 @@ export default async function InventoryPage() {
                   <td className="p-8">
                     <div className="flex items-center justify-center gap-6">
                       <form action={async () => { 'use server'; await updateStock(product.product_id, product.quantity - 1); }}>
-                        <button className="p-2 bg-white/5 hover:bg-red-500/20 rounded-full text-gray-500 hover:text-red-500 transition-all active:scale-95 border border-white/5"><Minus size={14} /></button>
+                        <button
+                          disabled={product.quantity <= 0}
+                          className="p-2 bg-white/5 hover:bg-red-500/20 rounded-full text-gray-500 hover:text-red-500 transition-all active:scale-95 border border-white/5 disabled:opacity-30 disabled:cursor-not-allowed"
+                        >
+                          <Minus size={14} />
+                        </button>
                       </form>
                       <span className={`text-base font-black font-mono w-10 text-center ${product.quantity < 5 ? 'text-orange-500 animate-pulse' : 'text-white'}`}>
                         {product.quantity.toString().padStart(2, '0')}
@@ -128,6 +134,18 @@ export default async function InventoryPage() {
                         <button className="p-2 bg-white/5 hover:bg-emerald-500/20 rounded-full text-gray-500 hover:text-emerald-500 transition-all active:scale-90 border border-white/5"><Plus size={14} /></button>
                       </form>
                     </div>
+                  </td>
+                  <td className="p-8 text-center">
+                    <form action={deleteProduct}>
+                      <input type="hidden" name="product_id" value={product.product_id} />
+                      <button
+                        type="submit"
+                        className="inline-flex items-center justify-center p-2 rounded-lg bg-white/5 text-gray-500 hover:text-red-500 hover:bg-red-500/20 transition-all border border-white/5"
+                        title="Delete product"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </form>
                   </td>
                 </tr>
               ))}

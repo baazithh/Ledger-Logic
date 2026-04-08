@@ -145,6 +145,7 @@ export async function signOut() {
  */
 export async function updateStock(productId: number, newQty: number) {
   const db = new Database(dbPath);
+  const safeQty = Math.max(0, Number.isFinite(newQty) ? newQty : 0);
   
   try {
     const stmt = db.prepare(`
@@ -153,7 +154,7 @@ export async function updateStock(productId: number, newQty: number) {
       WHERE product_id = ?
     `);
     
-    stmt.run(newQty, productId);
+    stmt.run(safeQty, productId);
     db.close();
     
     revalidatePath('/inventory');
@@ -280,6 +281,24 @@ export async function updateProductPrice(formData: FormData) {
     revalidatePath('/inventory');
   } catch (error) {
     console.error("Price Update Error:", error);
+    if (db) db.close();
+  }
+}
+
+/**
+ * Deletes a product from inventory.
+ */
+export async function deleteProduct(formData: FormData) {
+  const db = new Database(dbPath);
+  const productId = parseInt(formData.get('product_id') as string);
+
+  try {
+    db.prepare('DELETE FROM products WHERE product_id = ?').run(productId);
+    db.close();
+    revalidatePath('/inventory');
+    revalidatePath('/sell');
+  } catch (error) {
+    console.error("Delete Product Error:", error);
     if (db) db.close();
   }
 }
