@@ -1,11 +1,11 @@
 import path from 'path';
 import Link from 'next/link';
-import { ArrowUpRight, User, Package, CalendarDays } from 'lucide-react';
+import { ArrowUpRight, User, Package } from 'lucide-react';
+import Database from 'better-sqlite3';
 
 export const dynamic = 'force-dynamic';
 
 export default async function TransactionsPage() {
-  const Database = require('better-sqlite3');
   const dbPath = path.resolve(process.cwd(), '../data/ledger_raw.db');
   const db = new Database(dbPath);
 
@@ -14,7 +14,7 @@ export default async function TransactionsPage() {
     FROM sales s 
     JOIN products p ON s.product_id = p.product_id 
     ORDER BY s.sale_date DESC
-  `).all() as any[];
+  `).all() as unknown[];
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white p-8 md:p-16">

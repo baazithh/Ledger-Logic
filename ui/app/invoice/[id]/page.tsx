@@ -3,12 +3,12 @@ import path from 'path';
 import { ChevronLeft, ShieldCheck, Globe } from 'lucide-react';
 import Link from 'next/link';
 import PrintButton from './PrintButton';
+import Database from 'better-sqlite3';
 
 export const dynamic = 'force-dynamic';
 
 export default async function InvoicePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const Database = require('better-sqlite3');
   const dbPath = path.resolve(process.cwd(), '../data/ledger_raw.db');
   const db = new Database(dbPath);
 

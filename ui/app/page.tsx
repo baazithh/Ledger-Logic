@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import faviconPng from "./favicon.png";
@@ -8,14 +8,11 @@ import faviconPng from "./favicon.png";
 export default function Home() {
   const router = useRouter();
   
-  // Initialize as null to avoid "flicker" during hydration
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
-
-  // Check authentication status ONLY on the client side after mount
-  useEffect(() => {
-    const hasAuth = document.cookie.includes("ledger_auth");
-    setIsLoggedIn(hasAuth);
-  }, []);
+  // Compute on first client render (server render gets null).
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(() => {
+    if (typeof document === "undefined") return null;
+    return document.cookie.includes("ledger_auth");
+  });
 
   // This handles Inventory, Sell, and History buttons
   const protectedNavigate = (path: string) => {

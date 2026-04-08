@@ -1,16 +1,16 @@
 import path from 'path';
 import { processSale } from '../action';
 import { ShoppingCart, User, Calendar, CreditCard, ReceiptIndianRupee } from 'lucide-react';
+import Database from 'better-sqlite3';
 
 export const dynamic = 'force-dynamic';
 
 export default async function SellPage() {
-  const Database = require('better-sqlite3');
   const dbPath = path.resolve(process.cwd(), '../data/ledger_raw.db');
   const db = new Database(dbPath);
 
   // Fetch only products that are actually in stock
-  const products = db.prepare('SELECT * FROM products WHERE quantity > 0 ORDER BY product_name ASC').all() as any[];
+  const products = db.prepare('SELECT * FROM products WHERE quantity > 0 ORDER BY product_name ASC').all() as unknown[];
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white p-8 font-sans">

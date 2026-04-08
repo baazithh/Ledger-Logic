@@ -3,6 +3,7 @@ import { addProduct, updateStock, updateProductPrice } from '../action';
 import { Plus, Minus, Package, Store, Check, DollarSign } from 'lucide-react';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
+import Database from 'better-sqlite3';
 
 export const dynamic = 'force-dynamic';
 
@@ -17,12 +18,11 @@ export default async function InventoryPage() {
   }
   // -----------------------------
 
-  const Database = require('better-sqlite3');
   const dbPath = path.resolve(process.cwd(), '../data/ledger_raw.db');
   const db = new Database(dbPath);
 
   // Fetch products for the table
-  const products = db.prepare('SELECT * FROM products ORDER BY updated_at DESC').all() as any[];
+  const products = db.prepare('SELECT * FROM products ORDER BY updated_at DESC').all() as unknown[];
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white p-8 md:p-16 font-sans selection:bg-emerald-500/30">
