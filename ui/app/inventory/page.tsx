@@ -1,10 +1,22 @@
 import path from 'path';
 import { addProduct, updateStock, updateProductPrice } from '../action';
 import { Plus, Minus, Package, Store, Check, DollarSign } from 'lucide-react';
+import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
 
 export const dynamic = 'force-dynamic';
 
 export default async function InventoryPage() {
+  // --- AUTHENTICATION SHIELD ---
+  const cookieStore = await cookies();
+  const hasAuth = cookieStore.has('ledger_auth');
+
+  // If no auth cookie exists, redirect to login immediately
+  if (!hasAuth) {
+    redirect('/login');
+  }
+  // -----------------------------
+
   const Database = require('better-sqlite3');
   const dbPath = path.resolve(process.cwd(), '../data/ledger_raw.db');
   const db = new Database(dbPath);
@@ -107,7 +119,7 @@ export default async function InventoryPage() {
                   <td className="p-8">
                     <div className="flex items-center justify-center gap-6">
                       <form action={async () => { 'use server'; await updateStock(product.product_id, product.quantity - 1); }}>
-                        <button className="p-2 bg-white/5 hover:bg-red-500/20 rounded-full text-gray-500 hover:text-red-500 transition-all active:scale-90 border border-white/5"><Minus size={14} /></button>
+                        <button className="p-2 bg-white/5 hover:bg-red-500/20 rounded-full text-gray-500 hover:text-red-500 transition-all active:scale-95 border border-white/5"><Minus size={14} /></button>
                       </form>
                       <span className={`text-base font-black font-mono w-10 text-center ${product.quantity < 5 ? 'text-orange-500 animate-pulse' : 'text-white'}`}>
                         {product.quantity.toString().padStart(2, '0')}

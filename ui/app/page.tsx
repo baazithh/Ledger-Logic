@@ -1,13 +1,19 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 export default function Home() {
   const router = useRouter();
   
-  // Set to false to test the redirection logic
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  // Initialize as null to avoid "flicker" during hydration
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
+
+  // Check authentication status ONLY on the client side after mount
+  useEffect(() => {
+    const hasAuth = document.cookie.includes("ledger_auth");
+    setIsLoggedIn(hasAuth);
+  }, []);
 
   // This handles Inventory, Sell, and History buttons
   const protectedNavigate = (path: string) => {
@@ -17,6 +23,20 @@ export default function Home() {
       router.push(path);
     }
   };
+
+  const handleAuthAction = () => {
+    if (isLoggedIn) {
+      // Manual logout: clear cookie and reset state
+      document.cookie = "ledger_auth=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+      setIsLoggedIn(false);
+      router.refresh();
+    } else {
+      router.push("/login");
+    }
+  };
+
+  // Prevent UI flicker before we know the auth status
+  const authLabel = isLoggedIn === null ? "..." : isLoggedIn ? "Logout" : "Sign In";
 
   return (
     <div className="flex flex-col min-h-screen bg-zinc-50 dark:bg-zinc-950 font-sans selection:bg-indigo-100">
@@ -53,12 +73,12 @@ export default function Home() {
           </button>
         </div>
 
-        {/* Top Right Sign In Button */}
+        {/* Top Right Auth Button */}
         <button 
-          onClick={() => isLoggedIn ? setIsLoggedIn(false) : router.push("/login")}
-          className="px-5 py-2 text-sm font-semibold text-white bg-zinc-900 dark:bg-zinc-50 dark:text-black rounded-full hover:opacity-90 transition-opacity"
+          onClick={handleAuthAction}
+          className="px-5 py-2 text-sm font-semibold text-white bg-zinc-900 dark:bg-zinc-50 dark:text-black rounded-full hover:opacity-90 transition-opacity min-w-[100px]"
         >
-          {isLoggedIn ? "Logout" : "Sign In"}
+          {authLabel}
         </button>
       </nav>
 
@@ -71,7 +91,7 @@ export default function Home() {
               <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
             </span>
             <span className="text-xs font-semibold text-indigo-700 dark:text-indigo-300 uppercase tracking-wider">
-               {isLoggedIn ? "Ready to work" : "Secure Ledger System"}
+               {isLoggedIn ? "Session Active" : "Secure Ledger System"}
             </span>
           </div>
           
