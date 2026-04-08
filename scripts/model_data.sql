@@ -1,6 +1,6 @@
 -- STEP 1: Create the Dimension Table (The "Details")
--- We extract unique merchants from the raw data.
-CREATE TABLE dim_merchants AS
+-- Using IF NOT EXISTS so the script doesn't crash on re-runs.
+CREATE TABLE IF NOT EXISTS dim_merchants AS
 SELECT DISTINCT 
     merchant_name,
     CASE 
@@ -11,19 +11,21 @@ SELECT DISTINCT
 FROM raw_transactions;
 
 -- STEP 2: Create the Fact Table (The "Numbers")
--- UPDATED: Added merchant_name so we can JOIN later.
-CREATE TABLE fact_payments AS
+-- We include merchant_name as the "Join Key" (Bridge).
+CREATE TABLE IF NOT EXISTS fact_payments AS
 SELECT 
     txn_id,
-    merchant_name, -- This is the "Foreign Key" or Bridge
+    merchant_name, 
     amount,
     amount / 4 AS installment_value, 
     created_at
 FROM raw_transactions
 WHERE status = 'SUCCESS';
 
--- STEP 3: Create a "Semantic View" for AI
--- This is a "Metric" that an AI or Manager can easily read.
+-- STEP 3: Create a "Semantic View" for AI/Analytics
+-- We DROP and CREATE to ensure the view always reflects the latest logic.
+DROP VIEW IF EXISTS v_collection_summary;
+
 CREATE VIEW v_collection_summary AS
 SELECT 
     m.category,
