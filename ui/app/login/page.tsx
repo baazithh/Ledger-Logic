@@ -2,7 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import Image from "next/image";
 import { AlertCircle, X } from "lucide-react"; // Optional: for icons
+import faviconPng from "../favicon.png";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -43,12 +45,20 @@ export default function LoginPage() {
     <div className="flex min-h-screen flex-col bg-zinc-50 dark:bg-zinc-950 font-sans">
       {/* Navigation (Same as Home Page but with restricted clicks) */}
       <nav className="flex items-center justify-between px-8 py-6 border-b border-zinc-200 dark:border-zinc-800 bg-white/50 dark:bg-black/50 backdrop-blur-md sticky top-0 z-50">
-        <div className="flex items-center gap-2 cursor-pointer" onClick={() => router.push("/")}>
-          <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
-            <span className="text-white font-bold text-xs">LL</span>
+        <div className="flex items-center gap-3 cursor-pointer" onClick={() => router.push("/")}>
+          {/* Keep the same 32x32 size as the previous square logo */}
+          <div className="w-8 h-8 flex items-center justify-center">
+            <Image
+              src={faviconPng}
+              alt="Ledger Logic"
+              width={32}
+              height={32}
+              className="w-8 h-8 rounded-lg"
+              priority
+            />
           </div>
-          <span className="text-xl font-bold text-zinc-900 dark:text-zinc-50">
-            Ledger<span className="text-indigo-600">Logic</span>
+          <span className="text-xl md:text-2xl font-black tracking-tighter uppercase text-zinc-900 dark:text-zinc-50">
+            Ledger<span className="text-emerald-500">.</span>Inventory
           </span>
         </div>
 
