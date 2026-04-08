@@ -3,12 +3,17 @@ import type { NextRequest } from 'next/server';
 
 export function middleware(request: NextRequest) {
   const authCookie = request.cookies.get('ledger_auth');
-  const isLoginPage = request.nextUrl.pathname === '/login';
+  const path = request.nextUrl.pathname;
 
-  if (!authCookie && !isLoginPage) {
+  const isLoginPage = path === '/login';
+  const isPublicPage = path === '/'; // Define the Home Page as public
+
+  // 1. If not logged in and trying to access anything EXCEPT /login or /
+  if (!authCookie && !isLoginPage && !isPublicPage) {
     return NextResponse.redirect(new URL('/login', request.url));
   }
 
+  // 2. If logged in and trying to go to the login page, send them to inventory
   if (authCookie && isLoginPage) {
     return NextResponse.redirect(new URL('/inventory', request.url));
   }
