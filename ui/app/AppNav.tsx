@@ -27,7 +27,7 @@ export default function AppNav() {
       <form action={signOut}>
         <button
           type="submit"
-          className="text-xs uppercase tracking-widest font-bold text-white/90 hover:text-emerald-400 transition-colors"
+          className="text-xs uppercase tracking-widest font-bold text-white/90 hover:text-red-500 transition-colors"
         >
           Logout
         </button>
