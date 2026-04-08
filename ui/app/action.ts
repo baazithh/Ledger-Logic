@@ -77,7 +77,7 @@ export async function processSale(formData: FormData) {
   const installments = parseInt(formData.get('installments') as string);
   const startDateStr = formData.get('start_date') as string;
 
-  let newSaleId: number | bigint;
+  let newSaleId: number | bigint=0;
 
   try {
     // 1. Fetch product to verify stock and price
