@@ -51,3 +51,18 @@ CREATE TABLE IF NOT EXISTS products (
 INSERT INTO products (merchant_name, product_name, quantity, price)
 SELECT 'Apple Store', 'iPhone 15', 10, 999.00
 WHERE NOT EXISTS (SELECT 1 FROM products WHERE product_name = 'iPhone 15');
+
+-- STEP 5: Sales Tracking Table for BNPL Transactions
+CREATE TABLE IF NOT EXISTS sales (
+    sale_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    product_id INTEGER,
+    customer_name TEXT,
+    total_price REAL,
+    down_payment REAL,
+    installment_count INTEGER,
+    monthly_installment REAL,
+    start_date TEXT,
+    end_date TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (product_id) REFERENCES products(product_id)
+);

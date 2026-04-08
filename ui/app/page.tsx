@@ -78,7 +78,7 @@ export default function Home() {
             Sell
           </button>
           <button
-            onClick={() => protectedNavigate("/history")}
+            onClick={() => protectedNavigate("/transactions")}
             className="hover:text-emerald-500 transition-colors"
           >
             History

@@ -35,7 +35,7 @@ export default async function InvoicePage({ params }: { params: Promise<{ id: st
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white p-8 md:p-16 font-sans print:bg-white print:text-black print:p-0">
       <div className="max-w-4xl mx-auto">
-        
+
         {/* Actions - Hidden on Print */}
         <div className="flex justify-between items-center mb-16 print:hidden">
           <Link href="/transactions" className="flex items-center gap-2 text-gray-500 hover:text-white transition-all text-[10px] font-black uppercase tracking-[0.3em]">
@@ -46,7 +46,7 @@ export default async function InvoicePage({ params }: { params: Promise<{ id: st
 
         {/* --- PAGE 1: SUMMARY --- */}
         <div className="border border-white/10 rounded-[2rem] overflow-hidden bg-white/[0.02] print:border-black print:rounded-none print:bg-transparent">
-          
+
           <div className="grid grid-cols-1 md:grid-cols-3 border-b border-white/10 print:border-black">
             <div className="p-10 border-r border-white/10 print:border-black bg-white/[0.03] print:bg-transparent">
               <h1 className="text-3xl font-black tracking-tighter mb-1 uppercase italic">Ledger<span className="text-emerald-500">.</span></h1>
@@ -56,7 +56,7 @@ export default async function InvoicePage({ params }: { params: Promise<{ id: st
               <div className="flex justify-between items-center">
                 <div>
                   <p className="text-[10px] text-gray-500 font-black uppercase tracking-widest mb-1">Contract Hash</p>
-                  <p className="font-mono text-sm uppercase">{sale.sale_id}-BASITH-2026-X9</p>
+                  <p className="font-mono text-sm uppercase">{sale.sale_id}-LL-2026-X9</p>
                 </div>
                 <div className="text-right">
                   <p className="text-[10px] text-gray-500 font-black uppercase tracking-widest mb-1">Generated On</p>
