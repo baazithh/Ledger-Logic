@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 
-const TRANSITION_MS = 1200;
+const TRANSITION_MS = 500;
 
 export default function RouteTransitionLoader() {
   const pathname = usePathname();
