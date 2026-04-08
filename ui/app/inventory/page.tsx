@@ -7,6 +7,15 @@ import Database from 'better-sqlite3';
 
 export const dynamic = 'force-dynamic';
 
+interface Product {
+  product_id: number;
+  merchant_name: string;
+  product_name: string;
+  quantity: number;
+  price: number;
+  updated_at: string;
+}
+
 export default async function InventoryPage() {
   // --- AUTHENTICATION SHIELD ---
   const cookieStore = await cookies();
@@ -27,7 +36,7 @@ export default async function InventoryPage() {
   } catch {}
 
   // Fetch products for the table
-  const products = db.prepare('SELECT * FROM products WHERE is_active = 1 ORDER BY updated_at DESC').all() as unknown[];
+  const products = db.prepare('SELECT * FROM products WHERE is_active = 1 ORDER BY updated_at DESC').all() as Product[];
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white p-8 md:p-16 font-sans selection:bg-emerald-500/30">
