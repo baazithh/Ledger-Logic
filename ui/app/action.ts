@@ -1,14 +1,16 @@
-'use server' // This is CRITICAL. It tells Next.js to run this ONLY on the server.
+'use server'
 
-import Database from 'better-sqlite3';
 import { revalidatePath } from 'next/cache';
 import path from 'path';
 
-// We use path.resolve to make sure it finds your DB outside the 'ui' folder
+// Define the path outside the function
 const dbPath = path.resolve(process.cwd(), '../data/ledger_raw.db');
-const db = new Database(dbPath);
 
 export async function updateStock(productId: number, newQty: number) {
+  // Import better-sqlite3 dynamically inside the action
+  const Database = require('better-sqlite3');
+  const db = new Database(dbPath);
+  
   try {
     const stmt = db.prepare(`
       UPDATE products 
@@ -18,9 +20,10 @@ export async function updateStock(productId: number, newQty: number) {
     
     stmt.run(newQty, productId);
     
-    // This tells Next.js to refresh the inventory page data immediately
-    revalidatePath('/inventory'); 
+    // Close the connection to prevent database locks on Arch
+    db.close();
     
+    revalidatePath('/inventory');
     return { success: true };
   } catch (error) {
     console.error("Database Update Error:", error);
@@ -29,6 +32,9 @@ export async function updateStock(productId: number, newQty: number) {
 }
 
 export async function addProduct(formData: FormData) {
+  const Database = require('better-sqlite3');
+  const db = new Database(dbPath);
+
   const name = formData.get('product_name') as string;
   const merchant = formData.get('merchant_name') as string;
   const qty = parseInt(formData.get('quantity') as string);
@@ -40,9 +46,11 @@ export async function addProduct(formData: FormData) {
       VALUES (?, ?, ?, ?)
     `).run(merchant, name, qty, price);
 
+    db.close();
     revalidatePath('/inventory');
     return { success: true };
   } catch (error) {
+    console.error("Database Insert Error:", error);
     return { success: false };
   }
 }
