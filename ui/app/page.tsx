@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import faviconPng from "./favicon.png";
@@ -9,11 +9,16 @@ import { signOut } from "./action";
 export default function Home() {
   const router = useRouter();
   
-  // Compute on first client render (server render gets null).
-  const [isLoggedIn] = useState<boolean | null>(() => {
-    if (typeof document === "undefined") return null;
-    return document.cookie.includes("ledger_auth");
-  });
+  // Keep initial SSR/CSR render identical, then resolve auth on mount.
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoggedIn(document.cookie.includes("ledger_auth"));
+    }, 0);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   // This handles Inventory, Sell, and History buttons
   const protectedNavigate = (path: string) => {
