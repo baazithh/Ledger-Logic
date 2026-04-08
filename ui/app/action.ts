@@ -293,7 +293,13 @@ export async function deleteProduct(formData: FormData) {
   const productId = parseInt(formData.get('product_id') as string);
 
   try {
-    db.prepare('DELETE FROM products WHERE product_id = ?').run(productId);
+    // Soft delete to avoid foreign-key failures when sales rows exist.
+    // If column already exists, SQLite throws and we safely ignore.
+    try {
+      db.prepare('ALTER TABLE products ADD COLUMN is_active INTEGER NOT NULL DEFAULT 1').run();
+    } catch {}
+
+    db.prepare('UPDATE products SET is_active = 0, updated_at = CURRENT_TIMESTAMP WHERE product_id = ?').run(productId);
     db.close();
     revalidatePath('/inventory');
     revalidatePath('/sell');

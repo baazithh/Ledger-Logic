@@ -9,8 +9,13 @@ export default async function SellPage() {
   const dbPath = path.resolve(process.cwd(), '../data/ledger_raw.db');
   const db = new Database(dbPath);
 
+  // Backfill schema for soft-deleted products (ignore if already present).
+  try {
+    db.prepare('ALTER TABLE products ADD COLUMN is_active INTEGER NOT NULL DEFAULT 1').run();
+  } catch {}
+
   // Fetch only products that are actually in stock
-  const products = db.prepare('SELECT * FROM products WHERE quantity > 0 ORDER BY product_name ASC').all() as unknown[];
+  const products = db.prepare('SELECT * FROM products WHERE is_active = 1 AND quantity > 0 ORDER BY product_name ASC').all() as unknown[];
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white p-8 font-sans">
