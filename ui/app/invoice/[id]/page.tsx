@@ -1,6 +1,7 @@
 import path from 'path';
-import { ChevronLeft, Printer, CheckCircle2, CreditCard } from 'lucide-react';
+import { ChevronLeft, CheckCircle2 } from 'lucide-react';
 import Link from 'next/link';
+import PrintButton from './PrintButton';
 
 export const dynamic = 'force-dynamic';
 
@@ -53,12 +54,9 @@ export default async function InvoicePage({ params }: { params: Promise<{ id: st
           <Link href="/sell" className="flex items-center gap-2 text-gray-400 hover:text-black transition-all text-sm font-bold uppercase tracking-widest">
             <ChevronLeft size={16} /> Back to Terminal
           </Link>
-          <button 
-            onClick={() => window.print()} 
-            className="bg-black text-white px-8 py-3 rounded-full flex items-center gap-2 hover:bg-gray-800 transition-all shadow-xl shadow-black/10 font-bold text-xs uppercase tracking-widest"
-          >
-            <Printer size={16} /> Save as PDF
-          </button>
+          
+          {/* Using the Client Component for printing */}
+          <PrintButton />
         </div>
 
         {/* Branding & Status */}
