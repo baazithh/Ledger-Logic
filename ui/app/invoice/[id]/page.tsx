@@ -139,7 +139,7 @@ export default async function InvoicePage({ params }: { params: Promise<{ id: st
           {/* Footer Footer */}
           <div className="p-10 bg-white/[0.03] border-t border-white/10 print:border-black text-center">
             <p className="text-[9px] text-gray-600 uppercase tracking-[0.3em] font-bold">
-              Verification Engine: Mohammed Abdul Basith | Medallion Lakehouse | 2026
+              Verification Engine: LEDGER INVERNTORY MANAGER | 2026
             </p>
           </div>
         </div>
