@@ -6,6 +6,7 @@ import { cookies } from 'next/headers';
 import path from 'path';
 import crypto from 'crypto';
 import Database from 'better-sqlite3';
+import { isRedirectError } from 'next/dist/client/components/redirect-error';
 
 // Define the path relative to the root ledger-logic folder
 const dbPath = path.resolve(process.cwd(), '../data/ledger_raw.db');
@@ -29,9 +30,10 @@ function hashPassword(password: string, saltHex: string) {
   return hash.toString('hex');
 }
 
-function setAuthCookie(userId: number) {
+async function setAuthCookie(userId: number) {
   // "ledger_auth" just needs to exist for middleware; we store user_id for future use.
-  cookies().set('ledger_auth', String(userId), {
+  const cookieStore = await cookies();
+  cookieStore.set('ledger_auth', String(userId), {
     // Keep readable by client UI so Home can show Sign In/Logout state.
     httpOnly: false,
     sameSite: 'lax',
@@ -72,9 +74,10 @@ export async function signUp(formData: FormData) {
     const userId = Number(info.lastInsertRowid);
     db.close();
 
-    setAuthCookie(userId);
+    await setAuthCookie(userId);
     redirect('/inventory');
   } catch (error: unknown) {
+    if (isRedirectError(error)) throw error;
     db.close();
     // SQLite UNIQUE constraint violation
     const message = error instanceof Error ? error.message : String(error);
@@ -115,9 +118,10 @@ export async function signIn(formData: FormData) {
     }
 
     db.close();
-    setAuthCookie(user!.user_id);
+    await setAuthCookie(user!.user_id);
     redirect('/inventory');
   } catch (error) {
+    if (isRedirectError(error)) throw error;
     db.close();
     console.error('Sign In Error:', error);
     redirect('/login?mode=signin&error=unknown');
@@ -125,7 +129,8 @@ export async function signIn(formData: FormData) {
 }
 
 export async function signOut() {
-  cookies().set('ledger_auth', '', {
+  const cookieStore = await cookies();
+  cookieStore.set('ledger_auth', '', {
     httpOnly: false,
     sameSite: 'lax',
     secure: process.env.NODE_ENV === 'production',

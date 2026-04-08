@@ -11,10 +11,12 @@ export default function Home() {
   
   // Keep initial SSR/CSR render identical, then resolve auth on mount.
   const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
+  const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsLoggedIn(document.cookie.includes("ledger_auth"));
+      setIsReady(true);
     }, 0);
 
     return () => clearTimeout(timer);
@@ -30,7 +32,7 @@ export default function Home() {
   };
 
   // Prevent UI flicker before we know the auth status
-  const authLabel = isLoggedIn === null ? "..." : isLoggedIn ? "Logout" : "Sign In";
+  const authLabel = !isReady ? "Sign In" : isLoggedIn ? "Logout" : "Sign In";
 
   return (
     <div className="flex flex-col min-h-screen bg-zinc-50 dark:bg-zinc-950 font-sans selection:bg-emerald-100">
@@ -75,7 +77,7 @@ export default function Home() {
         </div>
 
         {/* Top Right Auth Button */}
-        {isLoggedIn ? (
+        {isReady && isLoggedIn ? (
           <form action={signOut}>
             <button
               type="submit"
