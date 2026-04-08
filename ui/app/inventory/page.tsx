@@ -18,7 +18,7 @@ export default async function InventoryPage() {
         
         {/* CV-Style Header */}
         <header className="mb-12 border-b border-white/10 pb-10">
-          <h1 className="text-5xl font-black tracking-tighter uppercase italic">
+          <h1 className="text-5xl font-black tracking-tighter uppercase ">
             Ledger<span className="text-emerald-500">.</span>Inventory
           </h1>
           <p className="text-gray-500 text-xs font-bold uppercase tracking-[0.4em] mt-3">
