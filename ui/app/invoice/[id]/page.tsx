@@ -49,7 +49,7 @@ export default async function InvoicePage({ params }: { params: Promise<{ id: st
           {/* Top Banner: Formal Identifiers */}
           <div className="grid grid-cols-1 md:grid-cols-3 border-b border-white/10 print:border-black">
             <div className="p-10 border-r border-white/10 print:border-black bg-white/[0.03]">
-              <h1 className="text-3xl font-black tracking-tighter mb-1 uppercase italic">Ledger<span className="text-emerald-500">.</span></h1>
+              <h1 className="text-3xl font-black tracking-tighter mb-1 uppercase">Ledger<span className="text-emerald-500">.</span></h1>
               <p className="text-[9px] font-bold text-gray-500 uppercase tracking-[0.2em]">Transaction Certificate</p>
             </div>
             <div className="p-10 col-span-2 flex flex-col justify-center">
