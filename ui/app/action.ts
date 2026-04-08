@@ -56,14 +56,20 @@ export async function addProduct(formData: FormData) {
     `).run(merchant, name, qty, price);
 
     db.close();
+    
+    // Refresh the UI
     revalidatePath('/inventory');
-    return { success: true };
+    
+    // NOTE: We don't return anything here. 
+    // This makes the function return Promise<void>, 
+    // which clears the TypeScript error in your page.tsx.
   } catch (error) {
     console.error("Database Insert Error:", error);
-    return { success: false };
+    db.close();
+    // If you need to show an error, you'd typically 
+    // use a redirect to an error page or use useFormState.
   }
 }
-
 /**
  * Processes a BNPL Sale: Checks stock, calculates installments, and records transaction
  */
