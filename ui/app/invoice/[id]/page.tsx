@@ -1,19 +1,16 @@
 import path from 'path';
-import { ChevronLeft, CheckCircle2 } from 'lucide-react';
+import { ChevronLeft, Hash, Calendar, ShieldCheck, Globe } from 'lucide-react';
 import Link from 'next/link';
 import PrintButton from './PrintButton';
 
 export const dynamic = 'force-dynamic';
 
 export default async function InvoicePage({ params }: { params: Promise<{ id: string }> }) {
-  // 1. Unwrap the params Promise (Next.js 15 Requirement)
   const { id } = await params;
-
   const Database = require('better-sqlite3');
   const dbPath = path.resolve(process.cwd(), '../data/ledger_raw.db');
   const db = new Database(dbPath);
 
-  // 2. Fetch sale data and join with product info
   const sale = db.prepare(`
     SELECT s.*, p.product_name, p.merchant_name 
     FROM sales s 
@@ -21,19 +18,8 @@ export default async function InvoicePage({ params }: { params: Promise<{ id: st
     WHERE s.sale_id = ?
   `).get(id);
 
-  if (!sale) {
-    return (
-      <div className="min-h-screen bg-[#0a0a0a] text-white flex items-center justify-center font-mono">
-        <div className="text-center space-y-4">
-          <p className="text-red-500 text-xl font-bold uppercase tracking-tighter">Error: 404_NOT_FOUND</p>
-          <p className="text-gray-500">The invoice ID {id} does not exist in the ledger.</p>
-          <Link href="/sell" className="inline-block border border-white/10 px-6 py-2 rounded-full text-xs uppercase font-bold">Return to Terminal</Link>
-        </div>
-      </div>
-    );
-  }
+  if (!sale) return <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center text-white font-mono">ERR: NULL_POINTER_SALE_ID</div>;
 
-  // 3. Generate the installment schedule
   const schedule = [];
   for (let i = 1; i <= sale.installment_count; i++) {
     const dueDate = new Date(sale.start_date);
@@ -46,101 +32,117 @@ export default async function InvoicePage({ params }: { params: Promise<{ id: st
   }
 
   return (
-    <div className="min-h-screen bg-white text-black p-6 md:p-12 font-sans selection:bg-emerald-100">
-      <div className="max-w-3xl mx-auto">
+    <div className="min-h-screen bg-[#0a0a0a] text-white p-8 md:p-16 font-sans print:bg-white print:text-black">
+      <div className="max-w-4xl mx-auto">
         
-        {/* Navigation / Actions (Hidden during PDF print) */}
+        {/* Header Navigation */}
         <div className="flex justify-between items-center mb-16 print:hidden">
-          <Link href="/sell" className="flex items-center gap-2 text-gray-400 hover:text-black transition-all text-sm font-bold uppercase tracking-widest">
-            <ChevronLeft size={16} /> Back to Terminal
+          <Link href="/sell" className="flex items-center gap-2 text-gray-500 hover:text-white transition-all text-[10px] font-black uppercase tracking-[0.3em]">
+            <ChevronLeft size={14} /> Back to Terminal
           </Link>
-          
-          {/* Using the Client Component for printing */}
           <PrintButton />
         </div>
 
-        {/* Branding & Status */}
-        <div className="flex justify-between items-start mb-16">
-          <div>
-            <div className="bg-emerald-500 text-white text-[10px] font-black px-3 py-1 rounded-full w-fit mb-4 uppercase tracking-[0.2em]">
-              Verified Transaction
+        {/* CV Style Layout Starts Here */}
+        <div className="border border-white/10 rounded-[2rem] overflow-hidden bg-white/[0.02] backdrop-blur-3xl print:border-black print:rounded-none">
+          
+          {/* Top Banner: Formal Identifiers */}
+          <div className="grid grid-cols-1 md:grid-cols-3 border-b border-white/10 print:border-black">
+            <div className="p-10 border-r border-white/10 print:border-black bg-white/[0.03]">
+              <h1 className="text-3xl font-black tracking-tighter mb-1 uppercase italic">Ledger<span className="text-emerald-500">.</span></h1>
+              <p className="text-[9px] font-bold text-gray-500 uppercase tracking-[0.2em]">Transaction Certificate</p>
             </div>
-            <h1 className="text-5xl font-black tracking-tighter italic">LEDGER<span className="text-gray-300">/</span>DOC</h1>
-            <p className="text-gray-400 font-mono text-[10px] mt-2 uppercase">Contract UUID: {sale.sale_id}-2026-MEDALLION</p>
-          </div>
-          <div className="text-right">
-            <p className="text-xs uppercase font-black tracking-widest text-gray-400">Merchant Partner</p>
-            <p className="text-xl font-bold">{sale.merchant_name}</p>
-          </div>
-        </div>
-
-        {/* Contract Summary Card */}
-        <div className="grid grid-cols-2 gap-10 mb-16 p-10 bg-gray-50 rounded-[2.5rem]">
-          <div>
-            <p className="text-[10px] uppercase text-gray-400 font-black tracking-widest mb-3 text-emerald-600">Purchaser</p>
-            <p className="text-2xl font-bold tracking-tight">{sale.customer_name}</p>
-          </div>
-          <div>
-            <p className="text-[10px] uppercase text-gray-400 font-black tracking-widest mb-3 text-emerald-600">Asset Acquired</p>
-            <p className="text-2xl font-bold tracking-tight">{sale.product_name}</p>
-          </div>
-        </div>
-
-        {/* Financial Details */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-20 px-4">
-          <div>
-            <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-2">Total Value</p>
-            <p className="text-2xl font-black font-mono">${sale.total_price.toFixed(2)}</p>
-          </div>
-          <div>
-            <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-2">Initial Pay</p>
-            <p className="text-2xl font-black font-mono text-emerald-600">-${sale.down_payment.toFixed(2)}</p>
-          </div>
-          <div>
-            <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-2">Monthly</p>
-            <p className="text-2xl font-black font-mono text-blue-600">${sale.monthly_installment.toFixed(2)}</p>
-          </div>
-          <div>
-            <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-2">Duration</p>
-            <p className="text-2xl font-black font-mono">{sale.installment_count}M</p>
-          </div>
-        </div>
-
-        {/* Repayment Roadmap */}
-        <div className="space-y-4">
-          <h2 className="text-xs font-black uppercase tracking-[0.3em] mb-8 text-center text-gray-300">Repayment Timeline</h2>
-          {schedule.map((item) => (
-            <div key={item.month} className="flex justify-between items-center p-6 border-b border-gray-100 group hover:bg-gray-50 transition-colors">
-              <div className="flex items-center gap-6">
-                <span className="text-xs font-black text-gray-300 group-hover:text-black transition-colors italic">
-                  #{item.month.toString().padStart(2, '0')}
-                </span>
+            <div className="p-10 col-span-2 flex flex-col justify-center">
+              <div className="flex justify-between items-center">
                 <div>
-                  <p className="text-xs text-gray-400 font-bold uppercase tracking-widest">Scheduled Date</p>
-                  <p className="font-bold">{new Date(item.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</p>
+                  <p className="text-[10px] text-gray-500 font-black uppercase tracking-widest mb-1">Contract Hash</p>
+                  <p className="font-mono text-sm uppercase">{sale.sale_id}-BASITH-2026-X9</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-[10px] text-gray-500 font-black uppercase tracking-widest mb-1">Generated On</p>
+                  <p className="text-sm">{new Date().toLocaleDateString()}</p>
                 </div>
               </div>
-              <div className="text-right flex items-center gap-8">
-                <div>
-                  <p className="text-xs text-gray-400 font-bold uppercase tracking-widest mb-1">Amount</p>
-                  <p className="font-black font-mono text-lg">${item.amount.toFixed(2)}</p>
-                </div>
-                {item.month === 1 ? (
-                  <CheckCircle2 size={18} className="text-emerald-500" />
-                ) : (
-                  <div className="w-[18px] h-[18px] border-2 border-gray-100 rounded-full" />
-                )}
+            </div>
+          </div>
+
+          {/* Section 1: Entity Details (The "CV Header" equivalent) */}
+          <div className="grid grid-cols-1 md:grid-cols-2 p-10 gap-10 border-b border-white/10 print:border-black">
+            <div>
+              <h2 className="text-[10px] font-black uppercase tracking-[0.4em] text-emerald-500 mb-6 flex items-center gap-2">
+                <ShieldCheck size={12} /> Merchant Profile
+              </h2>
+              <p className="text-2xl font-bold tracking-tight">{sale.merchant_name}</p>
+              <p className="text-gray-500 text-xs mt-1">Authorized Distribution Partner</p>
+            </div>
+            <div>
+              <h2 className="text-[10px] font-black uppercase tracking-[0.4em] text-emerald-500 mb-6 flex items-center gap-2">
+                <Globe size={12} /> Purchaser Identity
+              </h2>
+              <p className="text-2xl font-bold tracking-tight">{sale.customer_name}</p>
+              <p className="text-gray-500 text-xs mt-1">Verified Consumer Segment</p>
+            </div>
+          </div>
+
+          {/* Section 2: Asset Specification */}
+          <div className="p-10 border-b border-white/10 print:border-black bg-white/[0.01]">
+            <h2 className="text-[10px] font-black uppercase tracking-[0.4em] text-gray-500 mb-8">Purchase Metadata</h2>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+              <div>
+                <p className="text-[9px] text-gray-600 font-black uppercase tracking-widest mb-2">Selected Item</p>
+                <p className="font-bold text-sm">{sale.product_name}</p>
+              </div>
+              <div>
+                <p className="text-[9px] text-gray-600 font-black uppercase tracking-widest mb-2">Gross Value</p>
+                <p className="font-bold text-sm font-mono">${sale.total_price.toFixed(2)}</p>
+              </div>
+              <div>
+                <p className="text-[9px] text-gray-600 font-black uppercase tracking-widest mb-2">Down-Payment</p>
+                <p className="font-bold text-sm font-mono text-emerald-400">${sale.down_payment.toFixed(2)}</p>
+              </div>
+              <div>
+                <p className="text-[9px] text-gray-600 font-black uppercase tracking-widest mb-2">Repayment Period</p>
+                <p className="font-bold text-sm">{sale.installment_count} Months</p>
               </div>
             </div>
-          ))}
-        </div>
+          </div>
 
-        {/* Legal Footer */}
-        <footer className="mt-24 pt-12 border-t border-gray-100 text-[10px] text-gray-400 text-center leading-relaxed max-w-xl mx-auto">
-          This document serves as an electronic verification of debt for Mohammed Abdul Basith's Ledger Engine. 
-          By completing the down payment, the purchaser agrees to the monthly installment schedule outlined above. 
-          No physical signature required for this cloud-verified ledger entry.
-        </footer>
+          {/* Section 3: The Installment Ledger (CV Table style) */}
+          <div className="p-10">
+            <h2 className="text-[10px] font-black uppercase tracking-[0.4em] text-gray-500 mb-8">Installment Roadmap (BNPL)</h2>
+            <div className="w-full border border-white/5 rounded-2xl overflow-hidden print:border-black">
+              <table className="w-full text-left border-collapse">
+                <thead className="bg-white/5 print:bg-gray-100">
+                  <tr className="text-[9px] uppercase font-black tracking-widest text-gray-500 print:text-black">
+                    <th className="p-4 border-b border-white/5 print:border-black text-center w-20">Sequence</th>
+                    <th className="p-4 border-b border-white/5 print:border-black">Due Date</th>
+                    <th className="p-4 border-b border-white/5 print:border-black text-right">Amount Payable</th>
+                    <th className="p-4 border-b border-white/5 print:border-black text-center">Status</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/5 print:divide-black">
+                  {schedule.map((item) => (
+                    <tr key={item.month} className="hover:bg-white/[0.02] transition-colors text-xs font-medium">
+                      <td className="p-4 text-center font-mono text-gray-500">{item.month.toString().padStart(2, '0')}</td>
+                      <td className="p-4 font-mono">{new Date(item.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</td>
+                      <td className="p-4 text-right font-black font-mono text-emerald-400 print:text-black">${item.amount.toFixed(2)}</td>
+                      <td className="p-4 text-center">
+                        <span className="text-[9px] uppercase tracking-widest px-3 py-1 border border-white/10 rounded-full opacity-40">Unpaid</span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Footer Footer */}
+          <div className="p-10 bg-white/[0.03] border-t border-white/10 print:border-black text-center">
+            <p className="text-[9px] text-gray-600 uppercase tracking-[0.3em] font-bold">
+              Verification Engine: Mohammed Abdul Basith | Medallion Lakehouse | 2026
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );
