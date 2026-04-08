@@ -1,12 +1,23 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { AlertCircle, X } from "lucide-react"; // Optional: for icons
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [showToast, setShowToast] = useState(false);
+
+  // If middleware redirected here with a hint, show a full-page overlay.
+  useEffect(() => {
+    if (searchParams.get("auth") === "required") {
+      setShowToast(true);
+      // Clear the flag so refreshing doesn't re-trigger indefinitely.
+      // (Don't wait: we want the overlay to render immediately.)
+      router.replace("/login");
+    }
+  }, [router, searchParams]);
 
   // Auto-hide the message after 3 seconds
   useEffect(() => {
@@ -70,14 +81,21 @@ export default function LoginPage() {
         </div>
       </main>
 
-      {/* CUSTOM POPUP MESSAGE (Toast) */}
+      {/* Full-page overlay so the user understands login is required */}
       {showToast && (
-        <div className="fixed bottom-10 left-1/2 -translate-x-1/2 z-[100] animate-in fade-in slide-in-from-bottom-4 duration-300">
-          <div className="flex items-center gap-3 bg-zinc-900 text-white px-6 py-4 rounded-2xl shadow-2xl border border-white/10">
-            <AlertCircle className="text-indigo-400" size={18} />
-            <span className="text-sm font-medium">You must login first to access these features.</span>
-            <button onClick={() => setShowToast(false)} className="ml-2 hover:text-gray-400">
-              <X size={16} />
+        <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-center justify-center animate-in fade-in duration-300">
+          <div className="flex items-start gap-3 bg-zinc-900 text-white px-6 py-5 rounded-2xl shadow-2xl border border-white/10 w-[min(520px,90vw)]">
+            <AlertCircle className="text-indigo-400 mt-0.5" size={20} />
+            <div className="flex-1">
+              <div className="text-sm font-black uppercase tracking-widest text-indigo-300">
+                Login required
+              </div>
+              <div className="text-sm mt-2 font-medium text-zinc-200">
+                You tried to access protected actions. Sign in to use Inventory, Sell, and History.
+              </div>
+            </div>
+            <button onClick={() => setShowToast(false)} className="ml-3 hover:text-gray-300 shrink-0">
+              <X size={18} />
             </button>
           </div>
         </div>
