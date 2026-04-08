@@ -21,7 +21,7 @@ export default async function TransactionsPage() {
       <div className="max-w-6xl mx-auto">
         <header className="mb-12 flex justify-between items-end">
           <div>
-            <h1 className="text-4xl font-black tracking-tighter uppercase italic">Master<span className="text-emerald-500">.</span>Ledger</h1>
+            <h1 className="text-4xl font-black tracking-tighter uppercase "><span className="text-emerald-500">.</span>Ledger</h1>
             <p className="text-gray-500 text-xs font-bold uppercase tracking-[0.3em] mt-2">Global Transaction History</p>
           </div>
           <div className="text-right">
