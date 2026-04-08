@@ -34,3 +34,20 @@ SELECT
 FROM fact_payments p
 JOIN dim_merchants m ON p.merchant_name = m.merchant_name
 GROUP BY 1;
+-- STEP 4: Inventory Management Table
+-- This table will store the data coming from your Next.js UI.
+CREATE TABLE IF NOT EXISTS products (
+    product_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    merchant_name TEXT,
+    product_name TEXT NOT NULL,
+    quantity INTEGER DEFAULT 0,
+    price REAL DEFAULT 0.0,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    -- Linking to our Dimension table
+    FOREIGN KEY (merchant_name) REFERENCES dim_merchants(merchant_name)
+);
+
+-- Optional: Add a few starting products so your UI isn't empty
+INSERT INTO products (merchant_name, product_name, quantity, price)
+SELECT 'Apple Store', 'iPhone 15', 10, 999.00
+WHERE NOT EXISTS (SELECT 1 FROM products WHERE product_name = 'iPhone 15');
