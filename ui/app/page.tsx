@@ -5,16 +5,17 @@ import { useRouter } from "next/navigation";
 
 export default function Home() {
   const router = useRouter();
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // This will eventually be handled by your backend
+  
+  // Set to false to test the redirection logic
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
+  // This handles Inventory, Sell, and History buttons
   const protectedNavigate = (path: string) => {
     if (!isLoggedIn) {
-      // No alert, just direct redirection
       router.push("/login"); 
-      return; // Stop the function here
+    } else {
+      router.push(path);
     }
-    router.push(path);
-  }
   };
 
   return (
@@ -30,7 +31,7 @@ export default function Home() {
           </span>
         </div>
 
-        {/* Updated Navigation Buttons */}
+        {/* Nav Buttons with Protection */}
         <div className="hidden md:flex gap-8 text-sm font-medium text-zinc-600 dark:text-zinc-400">
           <button 
             onClick={() => protectedNavigate("/inventory")} 
@@ -52,7 +53,7 @@ export default function Home() {
           </button>
         </div>
 
-        {/* Auth Button */}
+        {/* Top Right Sign In Button */}
         <button 
           onClick={() => isLoggedIn ? setIsLoggedIn(false) : router.push("/login")}
           className="px-5 py-2 text-sm font-semibold text-white bg-zinc-900 dark:bg-zinc-50 dark:text-black rounded-full hover:opacity-90 transition-opacity"
@@ -70,7 +71,7 @@ export default function Home() {
               <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
             </span>
             <span className="text-xs font-semibold text-indigo-700 dark:text-indigo-300 uppercase tracking-wider">
-              {isLoggedIn ? "Welcome back to your Ledger" : "Manage your business logic"}
+               {isLoggedIn ? "Ready to work" : "Secure Ledger System"}
             </span>
           </div>
           
@@ -82,7 +83,7 @@ export default function Home() {
           </h1>
           
           <p className="max-w-xl text-lg text-zinc-600 dark:text-zinc-400 leading-relaxed">
-            Streamline your inventory, record your sales, and analyze your history with automated insights and real-time tracking.
+            Record every sale, track your stock, and analyze your history with automated insights.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 pt-4">
@@ -95,7 +96,7 @@ export default function Home() {
           </div>
         </div>
 
-        {/* UI Mockup */}
+        {/* UI Mockup Placeholder */}
         <div className="flex-1 w-full max-w-2xl">
           <div className="relative group">
             <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl blur opacity-25 group-hover:opacity-40 transition duration-1000"></div>
@@ -114,7 +115,7 @@ export default function Home() {
 
       <footer className="px-8 py-12 border-t border-zinc-200 dark:border-zinc-800 bg-white dark:bg-black">
         <p className="text-center text-sm text-zinc-500">
-          © 2026 Ledger Logic. Designed for speed.
+          © 2026 Ledger Logic. Efficient, fast, and secure.
         </p>
       </footer>
     </div>
