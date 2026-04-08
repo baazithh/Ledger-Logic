@@ -11,12 +11,13 @@ SELECT DISTINCT
 FROM raw_transactions;
 
 -- STEP 2: Create the Fact Table (The "Numbers")
--- We filter out FAILED transactions to ensure "Trustworthy" data.
+-- UPDATED: Added merchant_name so we can JOIN later.
 CREATE TABLE fact_payments AS
 SELECT 
     txn_id,
+    merchant_name, -- This is the "Foreign Key" or Bridge
     amount,
-    amount / 4 AS installment_value, -- BNPL Logic: Split into 4
+    amount / 4 AS installment_value, 
     created_at
 FROM raw_transactions
 WHERE status = 'SUCCESS';
