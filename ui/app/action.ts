@@ -6,6 +6,9 @@ import path from 'path';
 // Define the path relative to the root ledger-logic folder
 const dbPath = path.resolve(process.cwd(), '../data/ledger_raw.db');
 
+/**
+ * Updates stock quantity for a specific product
+ */
 export async function updateStock(productId: number, newQty: number) {
   const Database = require('better-sqlite3');
   const db = new Database(dbPath);
@@ -28,6 +31,9 @@ export async function updateStock(productId: number, newQty: number) {
   }
 }
 
+/**
+ * Adds a new product and auto-registers the merchant if missing
+ */
 export async function addProduct(formData: FormData) {
   const Database = require('better-sqlite3');
   const db = new Database(dbPath);
@@ -38,14 +44,11 @@ export async function addProduct(formData: FormData) {
   const price = parseFloat(formData.get('price') as string) || 0.0;
 
   try {
-    // STEP 1: Auto-register the merchant if it's new
-    // 'INSERT OR IGNORE' keeps the Foreign Key happy without crashing if it exists
     db.prepare(`
       INSERT OR IGNORE INTO dim_merchants (merchant_name, category) 
       VALUES (?, 'General')
     `).run(merchant);
 
-    // STEP 2: Now add the product safely
     db.prepare(`
       INSERT INTO products (merchant_name, product_name, quantity, price) 
       VALUES (?, ?, ?, ?)
@@ -57,5 +60,74 @@ export async function addProduct(formData: FormData) {
   } catch (error) {
     console.error("Database Insert Error:", error);
     return { success: false };
+  }
+}
+
+/**
+ * Processes a BNPL Sale: Checks stock, calculates installments, and records transaction
+ */
+export async function processSale(formData: FormData) {
+  const Database = require('better-sqlite3');
+  const db = new Database(dbPath);
+
+  const productId = parseInt(formData.get('product_id') as string);
+  const customerName = formData.get('customer_name') as string;
+  const downPayment = parseFloat(formData.get('down_payment') as string) || 0;
+  const installments = parseInt(formData.get('installments') as string);
+  const startDateStr = formData.get('start_date') as string;
+
+  try {
+    // 1. Fetch product to verify stock and price
+    const product = db.prepare('SELECT * FROM products WHERE product_id = ?').get(productId);
+    
+    if (!product || product.quantity <= 0) {
+      db.close();
+      return { success: false, error: "Item is out of stock" };
+    }
+
+    // 2. BNPL Logic Calculations
+    const totalAmount = product.price;
+    const remainingBalance = totalAmount - downPayment;
+    const monthlyAmount = remainingBalance / installments;
+    
+    // Calculate End Date based on installment months
+    const start = new Date(startDateStr);
+    const end = new Date(new Date(startDateStr).setMonth(start.getMonth() + installments));
+    const endDateStr = end.toISOString().split('T')[0];
+
+    // 3. Atomic Transaction: Update stock and insert sale record simultaneously
+    const runSaleTransaction = db.transaction(() => {
+      // Deduct 1 from inventory
+      db.prepare('UPDATE products SET quantity = quantity - 1 WHERE product_id = ?').run(productId);
+      
+      // Record the BNPL contract
+      db.prepare(`
+        INSERT INTO sales (
+          product_id, customer_name, total_price, down_payment, 
+          installment_count, monthly_installment, start_date, end_date
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      `).run(
+        productId, 
+        customerName, 
+        totalAmount, 
+        downPayment, 
+        installments, 
+        monthlyAmount, 
+        startDateStr, 
+        endDateStr
+      );
+    });
+
+    runSaleTransaction();
+    db.close();
+    
+    // Refresh both pages to show updated stock and new sales
+    revalidatePath('/inventory');
+    revalidatePath('/sell');
+    
+    return { success: true };
+  } catch (error) {
+    console.error("Sale Processing Error:", error);
+    return { success: false, error: "Transaction failed" };
   }
 }
