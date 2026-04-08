@@ -1,6 +1,7 @@
 'use server'
 
 import { revalidatePath } from 'next/cache';
+import { redirect } from 'next/navigation';
 import path from 'path';
 
 // Define the path relative to the root ledger-logic folder
@@ -76,6 +77,8 @@ export async function processSale(formData: FormData) {
   const installments = parseInt(formData.get('installments') as string);
   const startDateStr = formData.get('start_date') as string;
 
+  let newSaleId: number | bigint;
+
   try {
     // 1. Fetch product to verify stock and price
     const product = db.prepare('SELECT * FROM products WHERE product_id = ?').get(productId);
@@ -90,18 +93,15 @@ export async function processSale(formData: FormData) {
     const remainingBalance = totalAmount - downPayment;
     const monthlyAmount = remainingBalance / installments;
     
-    // Calculate End Date based on installment months
     const start = new Date(startDateStr);
     const end = new Date(new Date(startDateStr).setMonth(start.getMonth() + installments));
     const endDateStr = end.toISOString().split('T')[0];
 
-    // 3. Atomic Transaction: Update stock and insert sale record simultaneously
+    // 3. Atomic Transaction
     const runSaleTransaction = db.transaction(() => {
-      // Deduct 1 from inventory
       db.prepare('UPDATE products SET quantity = quantity - 1 WHERE product_id = ?').run(productId);
       
-      // Record the BNPL contract
-      db.prepare(`
+      const info = db.prepare(`
         INSERT INTO sales (
           product_id, customer_name, total_price, down_payment, 
           installment_count, monthly_installment, start_date, end_date
@@ -116,18 +116,22 @@ export async function processSale(formData: FormData) {
         startDateStr, 
         endDateStr
       );
+
+      // Capture the ID of the sale we just created
+      newSaleId = info.lastInsertRowid;
     });
 
     runSaleTransaction();
     db.close();
     
-    // Refresh both pages to show updated stock and new sales
     revalidatePath('/inventory');
     revalidatePath('/sell');
     
-    return { success: true };
   } catch (error) {
     console.error("Sale Processing Error:", error);
     return { success: false, error: "Transaction failed" };
   }
+
+  // Redirect the user to their fresh invoice page
+  redirect(`/invoice/${newSaleId}`);
 }
