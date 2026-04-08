@@ -4,12 +4,13 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import faviconPng from "./favicon.png";
+import { signOut } from "./action";
 
 export default function Home() {
   const router = useRouter();
   
   // Compute on first client render (server render gets null).
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(() => {
+  const [isLoggedIn] = useState<boolean | null>(() => {
     if (typeof document === "undefined") return null;
     return document.cookie.includes("ledger_auth");
   });
@@ -20,17 +21,6 @@ export default function Home() {
       router.push("/login"); 
     } else {
       router.push(path);
-    }
-  };
-
-  const handleAuthAction = () => {
-    if (isLoggedIn) {
-      // Manual logout: clear cookie and reset state
-      document.cookie = "ledger_auth=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-      setIsLoggedIn(false);
-      router.refresh();
-    } else {
-      router.push("/login");
     }
   };
 
@@ -80,12 +70,23 @@ export default function Home() {
         </div>
 
         {/* Top Right Auth Button */}
-        <button 
-          onClick={handleAuthAction}
-          className="px-5 py-2 text-sm font-semibold text-white bg-zinc-900 dark:bg-zinc-50 dark:text-black rounded-full hover:opacity-90 transition-opacity min-w-[100px]"
-        >
-          {authLabel}
-        </button>
+        {isLoggedIn ? (
+          <form action={signOut}>
+            <button
+              type="submit"
+              className="px-5 py-2 text-sm font-semibold text-white bg-zinc-900 dark:bg-zinc-50 dark:text-black rounded-full hover:opacity-90 transition-opacity min-w-[100px]"
+            >
+              {authLabel}
+            </button>
+          </form>
+        ) : (
+          <button
+            onClick={() => router.push("/login")}
+            className="px-5 py-2 text-sm font-semibold text-white bg-zinc-900 dark:bg-zinc-50 dark:text-black rounded-full hover:opacity-90 transition-opacity min-w-[100px]"
+          >
+            {authLabel}
+          </button>
+        )}
       </nav>
 
       {/* Hero Section */}

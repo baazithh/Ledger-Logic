@@ -32,7 +32,8 @@ function hashPassword(password: string, saltHex: string) {
 function setAuthCookie(userId: number) {
   // "ledger_auth" just needs to exist for middleware; we store user_id for future use.
   cookies().set('ledger_auth', String(userId), {
-    httpOnly: true,
+    // Keep readable by client UI so Home can show Sign In/Logout state.
+    httpOnly: false,
     sameSite: 'lax',
     secure: process.env.NODE_ENV === 'production',
     path: '/',
@@ -125,7 +126,7 @@ export async function signIn(formData: FormData) {
 
 export async function signOut() {
   cookies().set('ledger_auth', '', {
-    httpOnly: true,
+    httpOnly: false,
     sameSite: 'lax',
     secure: process.env.NODE_ENV === 'production',
     path: '/',
