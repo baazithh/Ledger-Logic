@@ -1,23 +1,38 @@
 import path from 'path';
-import { ChevronLeft, Download, Printer, CheckCircle2 } from 'lucide-react';
+import { ChevronLeft, Printer, CheckCircle2, CreditCard } from 'lucide-react';
 import Link from 'next/link';
 
-export default async function InvoicePage({ params }: { params: { id: string } }) {
+export const dynamic = 'force-dynamic';
+
+export default async function InvoicePage({ params }: { params: Promise<{ id: string }> }) {
+  // 1. Unwrap the params Promise (Next.js 15 Requirement)
+  const { id } = await params;
+
   const Database = require('better-sqlite3');
   const dbPath = path.resolve(process.cwd(), '../data/ledger_raw.db');
   const db = new Database(dbPath);
 
-  // Fetch sale and join with product info
+  // 2. Fetch sale data and join with product info
   const sale = db.prepare(`
     SELECT s.*, p.product_name, p.merchant_name 
     FROM sales s 
     JOIN products p ON s.product_id = p.product_id 
     WHERE s.sale_id = ?
-  `).get(params.id);
+  `).get(id);
 
-  if (!sale) return <div className="p-20 text-center text-white font-mono">INVOICE_NOT_FOUND: {params.id}</div>;
+  if (!sale) {
+    return (
+      <div className="min-h-screen bg-[#0a0a0a] text-white flex items-center justify-center font-mono">
+        <div className="text-center space-y-4">
+          <p className="text-red-500 text-xl font-bold uppercase tracking-tighter">Error: 404_NOT_FOUND</p>
+          <p className="text-gray-500">The invoice ID {id} does not exist in the ledger.</p>
+          <Link href="/sell" className="inline-block border border-white/10 px-6 py-2 rounded-full text-xs uppercase font-bold">Return to Terminal</Link>
+        </div>
+      </div>
+    );
+  }
 
-  // Generate the installment schedule on the fly
+  // 3. Generate the installment schedule
   const schedule = [];
   for (let i = 1; i <= sale.installment_count; i++) {
     const dueDate = new Date(sale.start_date);
@@ -53,7 +68,7 @@ export default async function InvoicePage({ params }: { params: { id: string } }
               Verified Transaction
             </div>
             <h1 className="text-5xl font-black tracking-tighter italic">LEDGER<span className="text-gray-300">/</span>DOC</h1>
-            <p className="text-gray-400 font-mono text-xs mt-2 uppercase">Contract UUID: {sale.sale_id}-{Date.now().toString().slice(-4)}</p>
+            <p className="text-gray-400 font-mono text-[10px] mt-2 uppercase">Contract UUID: {sale.sale_id}-2026-MEDALLION</p>
           </div>
           <div className="text-right">
             <p className="text-xs uppercase font-black tracking-widest text-gray-400">Merchant Partner</p>
@@ -64,11 +79,11 @@ export default async function InvoicePage({ params }: { params: { id: string } }
         {/* Contract Summary Card */}
         <div className="grid grid-cols-2 gap-10 mb-16 p-10 bg-gray-50 rounded-[2.5rem]">
           <div>
-            <p className="text-[10px] uppercase text-gray-400 font-black tracking-widest mb-3">Purchaser</p>
+            <p className="text-[10px] uppercase text-gray-400 font-black tracking-widest mb-3 text-emerald-600">Purchaser</p>
             <p className="text-2xl font-bold tracking-tight">{sale.customer_name}</p>
           </div>
           <div>
-            <p className="text-[10px] uppercase text-gray-400 font-black tracking-widest mb-3">Asset Acquired</p>
+            <p className="text-[10px] uppercase text-gray-400 font-black tracking-widest mb-3 text-emerald-600">Asset Acquired</p>
             <p className="text-2xl font-bold tracking-tight">{sale.product_name}</p>
           </div>
         </div>
@@ -107,9 +122,16 @@ export default async function InvoicePage({ params }: { params: { id: string } }
                   <p className="font-bold">{new Date(item.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</p>
                 </div>
               </div>
-              <div className="text-right">
-                <p className="text-xs text-gray-400 font-bold uppercase tracking-widest mb-1">Due Amount</p>
-                <p className="font-black font-mono text-lg">${item.amount.toFixed(2)}</p>
+              <div className="text-right flex items-center gap-8">
+                <div>
+                  <p className="text-xs text-gray-400 font-bold uppercase tracking-widest mb-1">Amount</p>
+                  <p className="font-black font-mono text-lg">${item.amount.toFixed(2)}</p>
+                </div>
+                {item.month === 1 ? (
+                  <CheckCircle2 size={18} className="text-emerald-500" />
+                ) : (
+                  <div className="w-[18px] h-[18px] border-2 border-gray-100 rounded-full" />
+                )}
               </div>
             </div>
           ))}
@@ -117,7 +139,9 @@ export default async function InvoicePage({ params }: { params: { id: string } }
 
         {/* Legal Footer */}
         <footer className="mt-24 pt-12 border-t border-gray-100 text-[10px] text-gray-400 text-center leading-relaxed max-w-xl mx-auto">
-          This document serves as an electronic verification of debt. By completing the down payment, the purchaser agrees to the monthly installment schedule outlined above. Generated via Ledger Logic Medallion Engine.
+          This document serves as an electronic verification of debt for Mohammed Abdul Basith's Ledger Engine. 
+          By completing the down payment, the purchaser agrees to the monthly installment schedule outlined above. 
+          No physical signature required for this cloud-verified ledger entry.
         </footer>
       </div>
     </div>
