@@ -56,7 +56,7 @@ export default async function InvoicePage({ params }: { params: Promise<{ id: st
               <div className="flex justify-between items-center">
                 <div>
                   <p className="text-[10px] text-gray-500 font-black uppercase tracking-widest mb-1">Contract Hash</p>
-                  <p className="font-mono text-sm uppercase">{sale.sale_id}-BASITH-2026-X9</p>
+                  <p className="font-mono text-sm uppercase">{sale.sale_id}-2026-X9</p>
                 </div>
                 <div className="text-right">
                   <p className="text-[10px] text-gray-500 font-black uppercase tracking-widest mb-1">Generated On</p>
