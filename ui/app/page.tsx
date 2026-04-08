@@ -41,7 +41,7 @@ export default function Home() {
   const authLabel = isLoggedIn === null ? "..." : isLoggedIn ? "Logout" : "Sign In";
 
   return (
-    <div className="flex flex-col min-h-screen bg-zinc-50 dark:bg-zinc-950 font-sans selection:bg-indigo-100">
+    <div className="flex flex-col min-h-screen bg-zinc-50 dark:bg-zinc-950 font-sans selection:bg-emerald-100">
       {/* Navigation */}
       <nav className="flex items-center justify-between px-8 py-6 border-b border-zinc-200 dark:border-zinc-800 bg-white/50 dark:bg-black/50 backdrop-blur-md sticky top-0 z-50">
         <div className="flex items-center gap-3 cursor-pointer" onClick={() => protectedNavigate("/inventory")}>
@@ -64,19 +64,19 @@ export default function Home() {
         <div className="hidden md:flex items-center gap-8 text-sm font-medium text-zinc-600 dark:text-zinc-400">
           <button 
             onClick={() => protectedNavigate("/inventory")} 
-            className="hover:text-indigo-600 transition-colors"
+            className="hover:text-emerald-500 transition-colors"
           >
             Inventory
           </button>
           <button 
             onClick={() => protectedNavigate("/sell")} 
-            className="hover:text-indigo-600 transition-colors"
+            className="hover:text-emerald-500 transition-colors"
           >
             Sell
           </button>
           <button 
             onClick={() => protectedNavigate("/history")} 
-            className="hover:text-indigo-600 transition-colors"
+            className="hover:text-emerald-500 transition-colors"
           >
             History
           </button>
@@ -96,17 +96,17 @@ export default function Home() {
         <div className="flex-1 space-y-8">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 dark:bg-indigo-900/30 border border-indigo-100 dark:border-indigo-800">
             <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
             </span>
-            <span className="text-xs font-semibold text-indigo-700 dark:text-indigo-300 uppercase tracking-wider">
+            <span className="text-xs font-semibold text-emerald-700 dark:text-emerald-300 uppercase tracking-wider">
                {isLoggedIn ? "Session Active" : "Secure Ledger System"}
             </span>
           </div>
           
           <h1 className="text-5xl lg:text-7xl font-extrabold tracking-tighter text-zinc-900 dark:text-zinc-50 leading-[1.1]">
             Financial clarity <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-violet-500">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-violet-500">
               powered by logic.
             </span>
           </h1>
@@ -118,7 +118,7 @@ export default function Home() {
           <div className="flex flex-col sm:flex-row gap-4 pt-4">
             <button 
               onClick={() => protectedNavigate("/inventory")}
-              className="px-8 py-4 bg-indigo-600 text-white rounded-xl font-bold shadow-lg shadow-indigo-500/20 hover:bg-indigo-700 transition-all active:scale-95"
+              className="px-8 py-4 bg-emerald-600 text-white rounded-xl font-bold shadow-lg shadow-emerald-500/20 hover:bg-emerald-700 transition-all active:scale-95"
             >
               Go to Dashboard
             </button>
@@ -128,7 +128,7 @@ export default function Home() {
         {/* UI Mockup Placeholder */}
         <div className="flex-1 w-full max-w-2xl">
           <div className="relative group">
-            <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl blur opacity-25 group-hover:opacity-40 transition duration-1000"></div>
+            <div className="absolute -inset-1 bg-gradient-to-r from-emerald-500 to-purple-600 rounded-2xl blur opacity-25 group-hover:opacity-40 transition duration-1000"></div>
             <div className="relative aspect-video bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-2xl overflow-hidden p-4">
                <div className="w-full h-full bg-zinc-100 dark:bg-zinc-800 rounded-lg flex flex-col p-4 gap-4">
                   <div className="h-8 w-1/3 bg-zinc-200 dark:bg-zinc-700 rounded shadow-sm"></div>

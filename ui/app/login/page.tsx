@@ -63,9 +63,9 @@ export default function LoginPage() {
         </div>
 
         <div className="hidden md:flex gap-8 text-sm font-medium text-zinc-600">
-          <button onClick={handleRestrictedClick} className="hover:text-indigo-600 transition-colors">Inventory</button>
-          <button onClick={handleRestrictedClick} className="hover:text-indigo-600 transition-colors">Sell</button>
-          <button onClick={handleRestrictedClick} className="hover:text-indigo-600 transition-colors">History</button>
+          <button onClick={handleRestrictedClick} className="hover:text-emerald-500 transition-colors">Inventory</button>
+          <button onClick={handleRestrictedClick} className="hover:text-emerald-500 transition-colors">Sell</button>
+          <button onClick={handleRestrictedClick} className="hover:text-emerald-500 transition-colors">History</button>
         </div>
         
         <div className="w-[100px]"></div> {/* Spacer to keep layout consistent */}
@@ -81,10 +81,10 @@ export default function LoginPage() {
 
           <form className="mt-8 space-y-6" onSubmit={handleLogin}>
             <div className="space-y-4">
-              <input type="email" placeholder="Email" required className="w-full px-4 py-3 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-transparent outline-none focus:ring-2 focus:ring-indigo-600" />
-              <input type="password" placeholder="Password" required className="w-full px-4 py-3 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-transparent outline-none focus:ring-2 focus:ring-indigo-600" />
+              <input type="email" placeholder="Email" required className="w-full px-4 py-3 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-transparent outline-none focus:ring-2 focus:ring-emerald-600" />
+              <input type="password" placeholder="Password" required className="w-full px-4 py-3 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-transparent outline-none focus:ring-2 focus:ring-emerald-600" />
             </div>
-            <button type="submit" className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg transition-all active:scale-[0.98]">
+            <button type="submit" className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg transition-all active:scale-[0.98]">
               Login
             </button>
           </form>
@@ -95,9 +95,9 @@ export default function LoginPage() {
       {showToast && (
         <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-center justify-center animate-in fade-in duration-300">
           <div className="flex items-start gap-3 bg-zinc-900 text-white px-6 py-5 rounded-2xl shadow-2xl border border-white/10 w-[min(520px,90vw)]">
-            <AlertCircle className="text-indigo-400 mt-0.5" size={20} />
+            <AlertCircle className="text-emerald-400 mt-0.5" size={20} />
             <div className="flex-1">
-              <div className="text-sm font-black uppercase tracking-widest text-indigo-300">
+              <div className="text-sm font-black uppercase tracking-widest text-emerald-300">
                 Login required
               </div>
               <div className="text-sm mt-2 font-medium text-zinc-200">

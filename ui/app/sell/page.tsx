@@ -17,7 +17,7 @@ export default async function SellPage() {
       <div className="max-w-4xl mx-auto">
         
         <header className="mb-12 animate-in fade-in duration-1000">
-          <h1 className="text-4xl font-extrabold tracking-tight bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 bg-clip-text text-transparent">
+          <h1 className="text-4xl font-extrabold tracking-tight bg-gradient-to-r from-emerald-400 via-purple-500 to-pink-500 bg-clip-text text-transparent">
             BNPL SALES TERMINAL
           </h1>
           <p className="text-gray-500 mt-2 font-medium">Create installment contracts and update real-time ledger.</p>
