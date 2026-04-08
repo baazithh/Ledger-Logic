@@ -179,6 +179,15 @@ export default function LoginPage() {
         </div>
       </main>
 
+      {/* Close Button Redirecting to Home */}
+      <button 
+        onClick={() => router.push("/")}
+        className="fixed top-8 right-8 z-[60] p-2.5 text-white hover:bg-emerald-600 rounded-xl transition-all duration-200 group active:scale-90"
+        aria-label="Close and return to home"
+      >
+        <X size={24} strokeWidth={2.5} className="group-hover:scale-110 transition-transform" />
+      </button>
+
       {/* Full-page overlay so the user understands login is required */}
       {(paramOverlay || manualOverlay) && (
         <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-center justify-center animate-in fade-in duration-300">

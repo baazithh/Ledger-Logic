@@ -8,7 +8,7 @@ import { signOut } from "./action";
 
 export default function Home() {
   const router = useRouter();
-  
+
   // Keep initial SSR/CSR render identical, then resolve auth on mount.
   const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
   const [isReady, setIsReady] = useState(false);
@@ -27,7 +27,7 @@ export default function Home() {
   // This handles Inventory, Sell, and History buttons
   const protectedNavigate = (path: string) => {
     if (!isLoggedIn) {
-      router.push("/login"); 
+      router.push("/login");
     } else {
       router.push(path);
     }
@@ -59,26 +59,26 @@ export default function Home() {
             />
           </div>
           <span className="text-xl md:text-2xl font-black tracking-tighter uppercase text-zinc-900 dark:text-zinc-50">
-            Ledger<span className="text-emerald-500">.</span>Inventory
+            Ledger<span className="text-emerald-500">.</span>Logic
           </span>
         </div>
 
         {/* Nav Buttons with Protection */}
         <div className="hidden md:flex items-center gap-8 text-sm font-medium text-zinc-600 dark:text-zinc-400">
-          <button 
-            onClick={() => protectedNavigate("/inventory")} 
+          <button
+            onClick={() => protectedNavigate("/inventory")}
             className="hover:text-emerald-500 transition-colors"
           >
             Inventory
           </button>
-          <button 
-            onClick={() => protectedNavigate("/sell")} 
+          <button
+            onClick={() => protectedNavigate("/sell")}
             className="hover:text-emerald-500 transition-colors"
           >
             Sell
           </button>
-          <button 
-            onClick={() => protectedNavigate("/history")} 
+          <button
+            onClick={() => protectedNavigate("/history")}
             className="hover:text-emerald-500 transition-colors"
           >
             History
@@ -115,23 +115,23 @@ export default function Home() {
               <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
             </span>
             <span className="text-xs font-semibold text-emerald-700 dark:text-emerald-300 uppercase tracking-wider">
-               {isLoggedIn ? "Session Active" : "Secure Ledger System"}
+              {isLoggedIn ? "Session Active" : "Secure Ledger System"}
             </span>
           </div>
-          
+
           <h1 className="text-5xl lg:text-7xl font-extrabold tracking-tighter text-zinc-900 dark:text-zinc-50 leading-[1.1]">
             Financial clarity <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-violet-500">
               powered by logic.
             </span>
           </h1>
-          
+
           <p className="max-w-xl text-lg text-zinc-600 dark:text-zinc-400 leading-relaxed">
             Record every sale, track your stock, and analyze your history with automated insights.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 pt-4">
-            <button 
+            <button
               onClick={() => protectedNavigate("/inventory")}
               className="px-8 py-4 bg-emerald-600 text-white rounded-xl font-bold shadow-lg shadow-emerald-500/20 hover:bg-emerald-700 transition-all active:scale-95"
             >
@@ -145,13 +145,13 @@ export default function Home() {
           <div className="relative group">
             <div className="absolute -inset-1 bg-gradient-to-r from-emerald-500 to-purple-600 rounded-2xl blur opacity-25 group-hover:opacity-40 transition duration-1000"></div>
             <div className="relative aspect-video bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-2xl overflow-hidden p-4">
-               <div className="w-full h-full bg-zinc-100 dark:bg-zinc-800 rounded-lg flex flex-col p-4 gap-4">
-                  <div className="h-8 w-1/3 bg-zinc-200 dark:bg-zinc-700 rounded shadow-sm"></div>
-                  <div className="flex gap-4 h-full">
-                    <div className="w-2/3 bg-zinc-200 dark:bg-zinc-700 rounded"></div>
-                    <div className="w-1/3 bg-zinc-200 dark:bg-zinc-700 rounded"></div>
-                  </div>
-               </div>
+              <div className="w-full h-full bg-zinc-100 dark:bg-zinc-800 rounded-lg flex flex-col p-4 gap-4">
+                <div className="h-8 w-1/3 bg-zinc-200 dark:bg-zinc-700 rounded shadow-sm"></div>
+                <div className="flex gap-4 h-full">
+                  <div className="w-2/3 bg-zinc-200 dark:bg-zinc-700 rounded"></div>
+                  <div className="w-1/3 bg-zinc-200 dark:bg-zinc-700 rounded"></div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
