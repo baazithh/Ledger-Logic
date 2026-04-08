@@ -34,6 +34,19 @@ export default function Home() {
   // Prevent UI flicker before we know the auth status
   const authLabel = !isReady ? "Sign In" : isLoggedIn ? "Logout" : "Sign In";
 
+  const handleHomeLogoutConfirm = (e: React.MouseEvent<HTMLButtonElement>) => {
+    const firstConfirm = window.confirm("Are you sure you want to logout?");
+    if (!firstConfirm) {
+      e.preventDefault();
+      return;
+    }
+
+    const secondConfirm = window.confirm("Please confirm again: logout now?");
+    if (!secondConfirm) {
+      e.preventDefault();
+    }
+  };
+
   return (
     <div className="flex flex-col min-h-screen bg-zinc-50 dark:bg-zinc-950 font-sans selection:bg-emerald-100">
       {/* Navigation */}
@@ -81,6 +94,7 @@ export default function Home() {
           <form action={signOut}>
             <button
               type="submit"
+              onClick={handleHomeLogoutConfirm}
               className="px-5 py-2 text-sm font-semibold text-white bg-zinc-900 dark:bg-zinc-50 dark:text-black rounded-full hover:opacity-90 transition-opacity min-w-[100px]"
             >
               {authLabel}
