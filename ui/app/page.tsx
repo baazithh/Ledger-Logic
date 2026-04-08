@@ -12,6 +12,8 @@ export default function Home() {
   // Keep initial SSR/CSR render identical, then resolve auth on mount.
   const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
   const [isReady, setIsReady] = useState(false);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -31,17 +33,14 @@ export default function Home() {
     }
   };
 
-  const handleHomeLogoutConfirm = (e: React.MouseEvent<HTMLButtonElement>) => {
-    const firstConfirm = window.confirm("Are you sure you want to logout?");
-    if (!firstConfirm) {
-      e.preventDefault();
-      return;
-    }
-
-    const secondConfirm = window.confirm("Please confirm again: logout now?");
-    if (!secondConfirm) {
-      e.preventDefault();
-    }
+  const startLogout = () => {
+    setIsLoggingOut(true);
+    // Submit the existing server-action form after UI updates so user sees loader.
+    const timer = setTimeout(() => {
+      const form = document.getElementById("home-logout-form") as HTMLFormElement | null;
+      form?.requestSubmit();
+    }, 120);
+    return () => clearTimeout(timer);
   };
 
   return (
@@ -88,10 +87,10 @@ export default function Home() {
 
         {/* Top Right Auth Button */}
         {isReady && isLoggedIn ? (
-          <form action={signOut}>
+          <form id="home-logout-form" action={signOut}>
             <button
-              type="submit"
-              onClick={handleHomeLogoutConfirm}
+              type="button"
+              onClick={() => setShowLogoutConfirm(true)}
               className="px-5 py-2 text-sm font-semibold text-white bg-zinc-900 dark:bg-zinc-50 dark:text-black rounded-full hover:opacity-90 transition-opacity min-w-[100px]"
             >
               <span suppressHydrationWarning>Logout</span>
@@ -163,6 +162,40 @@ export default function Home() {
           © 2026 Ledger Logic. Efficient, fast, and secure.
         </p>
       </footer>
+
+      {/* Custom in-page logout confirmation modal */}
+      {showLogoutConfirm && (
+        <div className="fixed inset-0 z-[120] bg-black/60 backdrop-blur-sm flex items-center justify-center">
+          <div className="w-[min(420px,90vw)] rounded-2xl border border-white/10 bg-zinc-900 text-white p-6 shadow-2xl">
+            <h3 className="text-lg font-bold tracking-tight">Do you really want to log out?</h3>
+            <p className="mt-2 text-sm text-zinc-300">
+              You will be signed out and returned to the home page.
+            </p>
+
+            <div className="mt-6 flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setShowLogoutConfirm(false)}
+                disabled={isLoggingOut}
+                className="px-4 py-2 rounded-lg text-sm font-semibold bg-white/10 hover:bg-white/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                No
+              </button>
+              <button
+                type="button"
+                onClick={startLogout}
+                disabled={isLoggingOut}
+                className="px-4 py-2 rounded-lg text-sm font-semibold bg-red-600 hover:bg-red-700 transition-colors disabled:opacity-80 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                {isLoggingOut && (
+                  <span className="inline-block h-3.5 w-3.5 rounded-full border-2 border-white/40 border-t-white animate-spin" />
+                )}
+                {isLoggingOut ? "Logging out..." : "Yes"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
