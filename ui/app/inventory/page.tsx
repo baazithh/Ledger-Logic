@@ -1,7 +1,6 @@
 import path from 'path';
-// Adjusted import path to match standard Next.js app structure
 import { addProduct, updateStock } from '../action';
-import { Plus, Minus, Package, Store, ChevronDown } from 'lucide-react';
+import { Plus, Minus, Package, Store } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
 
@@ -11,10 +10,7 @@ export default async function InventoryPage() {
   const dbPath = path.resolve(process.cwd(), '../data/ledger_raw.db');
   const db = new Database(dbPath);
 
-  // 1. Fetch valid merchants for the dropdown
-  const merchants = db.prepare('SELECT merchant_name FROM dim_merchants ORDER BY merchant_name ASC').all() as any[];
-
-  // 2. Fetch products for the table
+  // Fetch products for the table
   const products = db.prepare('SELECT * FROM products ORDER BY updated_at DESC').all() as any[];
 
   return (
@@ -32,35 +28,31 @@ export default async function InventoryPage() {
           <h2 className="text-xl font-semibold mb-6 flex items-center gap-2">
             <Package className="text-blue-400" size={20} /> New Inventory Item
           </h2>
-          <form action={addProduct} className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <form action={addProduct} className="grid grid-cols-1 md:grid-cols-5 gap-4">
+            
             <div className="space-y-2">
               <label className="text-xs uppercase tracking-widest text-gray-500 font-bold">Product Name</label>
-              <input name="product_name" required className="w-full bg-white/5 border border-white/10 rounded-xl p-3 outline-none focus:border-blue-500 focus:bg-white/10 transition-all text-sm" placeholder="e.g. iPhone 15" />
+              <input name="product_name" required className="w-full bg-white/5 border border-white/10 rounded-xl p-3 outline-none focus:border-blue-500 transition-all text-sm" placeholder="e.g. iPhone 15" />
             </div>
 
-            {/* Merchant Selection Dropdown */}
             <div className="space-y-2">
               <label className="text-xs uppercase tracking-widest text-gray-500 font-bold">Merchant</label>
-              <div className="relative">
-                <select 
-                  name="merchant_name" 
-                  required 
-                  className="w-full bg-white/5 border border-white/10 rounded-xl p-3 outline-none focus:border-blue-500 focus:bg-white/10 transition-all text-sm appearance-none cursor-pointer"
-                >
-                  <option value="" disabled selected className="bg-black">Select Merchant</option>
-                  {merchants.map((m) => (
-                    <option key={m.merchant_name} value={m.merchant_name} className="bg-black text-white">
-                      {m.merchant_name}
-                    </option>
-                  ))}
-                </select>
-                <ChevronDown className="absolute right-3 top-3 text-gray-500 pointer-events-none" size={16} />
-              </div>
+              <input 
+                name="merchant_name" 
+                required 
+                placeholder="e.g. Tesla, Amazon"
+                className="w-full bg-white/5 border border-white/10 rounded-xl p-3 outline-none focus:border-blue-500 transition-all text-sm" 
+              />
             </div>
 
             <div className="space-y-2">
               <label className="text-xs uppercase tracking-widest text-gray-500 font-bold">Price ($)</label>
-              <input name="price" type="number" step="0.01" required className="w-full bg-white/5 border border-white/10 rounded-xl p-3 outline-none focus:border-blue-500 focus:bg-white/10 transition-all text-sm font-mono" placeholder="999.99" />
+              <input name="price" type="number" step="0.01" required className="w-full bg-white/5 border border-white/10 rounded-xl p-3 outline-none focus:border-blue-500 transition-all text-sm font-mono" placeholder="999.99" />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-xs uppercase tracking-widest text-gray-500 font-bold">Initial Stock</label>
+              <input name="quantity" type="number" required defaultValue="1" className="w-full bg-white/5 border border-white/10 rounded-xl p-3 outline-none focus:border-blue-500 transition-all text-sm font-mono" />
             </div>
             
             <div className="flex items-end">
@@ -86,22 +78,19 @@ export default async function InventoryPage() {
             <tbody className="divide-y divide-white/10">
               {products.map((product) => (
                 <tr key={product.product_id} className="hover:bg-white/5 transition-colors group">
-                  <td className="p-6">
-                    <div className="font-semibold text-gray-100">{product.product_name}</div>
-                    <div className="text-[10px] text-gray-600 mt-1 uppercase tracking-widest">ID: {product.product_id}</div>
-                  </td>
+                  <td className="p-6 text-sm font-medium">{product.product_name}</td>
                   <td className="p-6 text-gray-400">
-                    <span className="flex items-center gap-2 text-sm">
+                    <span className="flex items-center gap-2 text-xs">
                       <Store size={14} className="text-purple-400" /> {product.merchant_name}
                     </span>
                   </td>
-                  <td className="p-6 text-blue-400 font-mono font-medium">${Number(product.price).toFixed(2)}</td>
+                  <td className="p-6 text-blue-400 font-mono text-sm">${Number(product.price).toFixed(2)}</td>
                   <td className="p-6">
-                    <div className="flex items-center justify-center gap-5">
+                    <div className="flex items-center justify-center gap-4">
                       <form action={async () => { 'use server'; await updateStock(product.product_id, product.quantity - 1); }}>
                         <button className="p-2 hover:bg-white/10 rounded-lg text-gray-400 hover:text-red-400 transition-all"><Minus size={16} /></button>
                       </form>
-                      <span className={`text-lg font-bold w-10 text-center ${product.quantity < 5 ? 'text-orange-400' : 'text-white'}`}>
+                      <span className={`text-lg font-bold w-8 text-center ${product.quantity < 5 ? 'text-orange-400' : 'text-white'}`}>
                         {product.quantity}
                       </span>
                       <form action={async () => { 'use server'; await updateStock(product.product_id, product.quantity + 1); }}>
@@ -110,17 +99,15 @@ export default async function InventoryPage() {
                     </div>
                   </td>
                   <td className="p-6 text-right">
-                    <button className="text-[10px] text-gray-500 hover:text-white uppercase font-bold tracking-widest transition-all">
-                      Details
-                    </button>
+                    <button className="text-[10px] text-gray-500 hover:text-white uppercase font-bold tracking-widest transition-all">Details</button>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
           {products.length === 0 && (
-            <div className="p-20 text-center text-gray-600 italic">
-              No products found in the ledger. Add one above to begin.
+            <div className="p-20 text-center text-gray-600 italic font-mono text-sm">
+              DATABASE_STATUS: EMPTY_LEDGER
             </div>
           )}
         </div>

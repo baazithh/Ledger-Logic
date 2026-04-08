@@ -3,11 +3,10 @@
 import { revalidatePath } from 'next/cache';
 import path from 'path';
 
-// Define the path outside the function
+// Define the path relative to the root ledger-logic folder
 const dbPath = path.resolve(process.cwd(), '../data/ledger_raw.db');
 
 export async function updateStock(productId: number, newQty: number) {
-  // Import better-sqlite3 dynamically inside the action
   const Database = require('better-sqlite3');
   const db = new Database(dbPath);
   
@@ -19,8 +18,6 @@ export async function updateStock(productId: number, newQty: number) {
     `);
     
     stmt.run(newQty, productId);
-    
-    // Close the connection to prevent database locks on Arch
     db.close();
     
     revalidatePath('/inventory');
@@ -37,10 +34,18 @@ export async function addProduct(formData: FormData) {
 
   const name = formData.get('product_name') as string;
   const merchant = formData.get('merchant_name') as string;
-  const qty = parseInt(formData.get('quantity') as string);
-  const price = parseFloat(formData.get('price') as string);
+  const qty = parseInt(formData.get('quantity') as string) || 0;
+  const price = parseFloat(formData.get('price') as string) || 0.0;
 
   try {
+    // STEP 1: Auto-register the merchant if it's new
+    // 'INSERT OR IGNORE' keeps the Foreign Key happy without crashing if it exists
+    db.prepare(`
+      INSERT OR IGNORE INTO dim_merchants (merchant_name, category) 
+      VALUES (?, 'General')
+    `).run(merchant);
+
+    // STEP 2: Now add the product safely
     db.prepare(`
       INSERT INTO products (merchant_name, product_name, quantity, price) 
       VALUES (?, ?, ?, ?)
