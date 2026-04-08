@@ -7,6 +7,21 @@ import Database from 'better-sqlite3';
 
 export const dynamic = 'force-dynamic';
 
+interface Sale {
+  sale_id: number;
+  product_id: number;
+  customer_name: string;
+  total_price: number;
+  down_payment: number;
+  installment_count: number;
+  monthly_installment: number;
+  start_date: string;
+  end_date: string;
+  created_at: string;
+  product_name: string;
+  merchant_name: string;
+}
+
 export default async function InvoicePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const dbPath = path.resolve(process.cwd(), '../data/ledger_raw.db');
@@ -17,7 +32,7 @@ export default async function InvoicePage({ params }: { params: Promise<{ id: st
     FROM sales s 
     JOIN products p ON s.product_id = p.product_id 
     WHERE s.sale_id = ?
-  `).get(id);
+  `).get(id) as Sale | undefined;
 
   if (!sale) return <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center text-white font-mono">ERR: NULL_POINTER_SALE_ID</div>;
 
@@ -49,7 +64,7 @@ export default async function InvoicePage({ params }: { params: Promise<{ id: st
 
           <div className="grid grid-cols-1 md:grid-cols-3 border-b border-white/10 print:border-black">
             <div className="p-10 border-r border-white/10 print:border-black bg-white/[0.03] print:bg-transparent">
-              <h1 className="text-3xl font-black tracking-tighter mb-1 uppercase italic">Ledger<span className="text-emerald-500">.</span></h1>
+              <h1 className="text-3xl font-black tracking-tighter mb-1 uppercase italic">Ledger<span className="text-emerald-500">.</span>Logic</h1>
               <p className="text-[9px] font-bold text-gray-500 uppercase tracking-[0.2em]">Certificate of Purchase</p>
             </div>
             <div className="p-10 col-span-2 flex flex-col justify-center">
