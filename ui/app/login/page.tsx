@@ -65,7 +65,7 @@ export default function LoginPage() {
             />
           </div>
           <span className="text-xl md:text-2xl font-black tracking-tighter uppercase text-zinc-900 dark:text-zinc-50">
-            Ledger<span className="text-emerald-500">.</span>Inventory
+            Ledger<span className="text-emerald-500">.</span>Logic
           </span>
         </div>
 
